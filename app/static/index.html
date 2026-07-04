@@ -54,6 +54,10 @@
     width:100%}
   .card:hover{border-color:#cfd3cc}
   .card .row{display:flex; align-items:baseline; gap:.5rem}
+  .card-actions{display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.1rem}
+  .card-action{display:inline-flex; align-items:center; min-height:34px; font-size:var(--t-12); font-weight:700;
+    color:var(--accent); background:var(--bg); border:1px solid var(--line); border-radius:var(--r-pill);
+    padding:.25rem .65rem; text-decoration:none; cursor:pointer}
   .code{font-size:var(--t-12); font-weight:700; letter-spacing:.04em; color:var(--ink-faint)}
   .stage{margin-left:auto; font-size:var(--t-11); text-transform:uppercase; letter-spacing:.05em;
     color:var(--ink-soft); border:1px solid var(--line); border-radius:var(--r-pill); padding:.1rem .5rem}
@@ -237,8 +241,56 @@
   .build-empty{font-size:var(--t-13); color:var(--ink-faint); border:1px dashed var(--line); border-radius:var(--r-md);
     padding:.75rem; background:var(--surface)}
 
+  /* Living Program: the shipped app as the single primary object, rendered only from BFF evidence. */
+  .screen-living{max-width:820px; overflow-x:hidden; color:var(--ink)}
+  .living-shell{display:flex; flex-direction:column; gap:1rem; min-width:0; color:var(--ink)}
+  .living-born{font-size:var(--t-13); color:var(--ink-faint); margin:0}
+  .living-born b{color:var(--ink-soft); font-weight:650; overflow-wrap:anywhere}
+  .living-window{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:1.05rem;
+    display:flex; flex-direction:column; gap:.9rem; min-width:0}
+  .living-top{display:flex; align-items:center; gap:.65rem; flex-wrap:wrap; min-width:0}
+  .running-status{display:inline-flex; align-items:center; gap:.45rem; font-size:var(--t-13); font-weight:750;
+    color:var(--accent); background:var(--bg); border:1px solid var(--line); border-radius:var(--r-pill);
+    padding:.28rem .7rem}
+  .running-status::before{content:""; width:8px; height:8px; border-radius:50%; background:var(--accent); animation:pulse 1.4s ease-in-out infinite}
+  .living-url{font-size:var(--t-14); color:var(--ink); font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    min-width:0; overflow-wrap:anywhere}
+  .open-it{margin-left:auto; display:inline-flex; align-items:center; min-height:44px; font:inherit; font-size:var(--t-14);
+    font-weight:700; text-decoration:none; color:#fff; background:var(--accent); border:1px solid var(--accent);
+    border-radius:var(--r-pill); padding:.5rem 1.05rem}
+  .vitals{display:flex; gap:1.2rem; flex-wrap:wrap; padding-top:.35rem; border-top:1px solid var(--line)}
+  .vital{min-width:7.5rem}
+  .vital .k{font-size:var(--t-11); text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint)}
+  .vital .v{font-size:var(--t-18); font-weight:750; color:var(--ink); overflow-wrap:anywhere}
+  .notlive{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:1.4rem 1rem;
+    text-align:center; display:flex; flex-direction:column; gap:.35rem; align-items:center}
+  .notlive .big{font-size:var(--t-18); font-weight:750; color:var(--ink)}
+  .notlive .small{font-size:var(--t-13); color:var(--ink-soft); line-height:1.4; max-width:34rem}
+  .living-block{margin-top:.35rem; min-width:0}
+  .living-block h2{font-size:var(--t-12); text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); margin:0 0 .65rem}
+  .living-features{display:flex; flex-direction:column; gap:.6rem; min-width:0}
+  .living-feature{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-md); padding:.75rem .85rem;
+    display:grid; grid-template-columns:minmax(0,1fr); gap:.5rem; min-width:0}
+  .feature-name{font-size:var(--t-14); font-weight:700; color:var(--ink); overflow-wrap:anywhere}
+  .feature-increment{font-size:var(--t-12); color:var(--ink-faint)}
+  .feature-assurance{min-width:0}
+  .living-truncated{font-size:var(--t-12); color:var(--ink-soft); border:1px dashed var(--line); border-radius:var(--r-md);
+    padding:.65rem; background:var(--surface)}
+  .journey{display:flex; flex-direction:column; gap:0; min-width:0; color:var(--ink)}
+  .journey-step{display:flex; gap:.75rem; align-items:flex-start; min-width:0}
+  .journey-rail{display:flex; flex-direction:column; align-items:center; align-self:stretch; flex:none}
+  .journey-node{width:12px; height:12px; border-radius:50%; background:var(--accent); flex:none; margin-top:.25rem}
+  .journey-node.now{box-shadow:0 0 0 4px #2f6f4f22}
+  .journey-line{width:2px; flex:1; background:var(--line); margin:.15rem 0}
+  .journey-body{padding-bottom:.75rem; min-width:0}
+  .journey-title{font-size:var(--t-14); font-weight:700; color:var(--ink); overflow-wrap:anywhere}
+  .journey-date{font-size:var(--t-12); color:var(--ink-faint); overflow-wrap:anywhere}
+  .living-error{background:#fff1ee; border:1px solid #e7b7ae; color:var(--blocked); border-radius:var(--r-lg);
+    padding:.9rem; font-size:var(--t-14)}
+
   @media (min-width: 760px){
     .build-layout{grid-template-columns:minmax(0,1fr) 270px}
+    .living-feature{grid-template-columns:minmax(0,1fr) minmax(7rem,auto) minmax(10rem,16rem); align-items:center}
   }
 
   @media (max-width: 430px){
@@ -249,6 +301,9 @@
     .needs{padding:.35rem .45rem}
     .new-idea{padding:.38rem .62rem}
     .phase-main{min-width:8rem}
+    .screen-living{max-width:100%}
+    .open-it{width:100%; justify-content:center; margin-left:0}
+    .vital{min-width:0; flex:1 1 8rem}
   }
 
   /* sign-in gate (DoS #4: unauth shows sign-in, NEVER the portfolio) */
@@ -296,6 +351,7 @@ const STORY_CAP = 200;
 const DRAFT_TIMEOUT_MS = 240000;
 const BUILD_POLL_MS = 10000;
 const BUILD_FEED_CAP = 30;
+const LIVING_FEATURE_CAP = 50;
 const samples = [
   "A local-first CRM that reminds a solo founder who they have gone quiet on, and drafts the re-intro.",
   "A budgeting app that splits a shared bill by who ate what.",
@@ -304,6 +360,7 @@ const samples = [
 let draftState = {idea:"", vision:null, inFlight:false, error:"", timedOut:false, startOpen:false, starting:false, created:null};
 let needsState = {items:[], count:0, source:"", degraded:[], loading:false, error:"", openId:"", decision:"", resolving:false, note:""};
 let buildState = {program:"", data:null, loading:false, error:"", poll:null, controller:null, seq:0};
+let livingState = {program:"", data:null, loading:false, error:"", controller:null, seq:0};
 
 // Trust Strip renderer — the ONE component (design §3). Renders a mixbar from counts + a DATA-COMPUTED
 // caption. Never emits a static universal claim; an empty manifest renders an honest hatched bar + the
@@ -331,13 +388,29 @@ function trustStrip(strip){
 function card(p){
   const c = document.createElement("button"); c.className = "card"; c.type = "button";
   c.setAttribute("aria-label", `${p.name} — ${p.lifecycle_stage}`);
+  const codeValue = p.code || p.id || "";
   const row = document.createElement("div"); row.className = "row";
   const code = document.createElement("span"); code.className = "code"; code.textContent = p.code || "";
   const stage = document.createElement("span"); stage.className = "stage"; stage.textContent = p.lifecycle_stage || "";
   row.append(code, stage);
   const idea = document.createElement("div"); idea.className = "idea";
   idea.textContent = p.idea_sentence || p.name || p.code || "—";
-  c.append(row, idea, trustStrip(p.trust_strip || {}));
+  const actions = el("div", {class:"card-actions"},
+    el("span", {class:"card-action", role:"link", tabindex:"0", "data-living-open":codeValue, text:"Living / open"})
+  );
+  const living = actions.querySelector("[data-living-open]");
+  living.addEventListener("click", ev => {
+    ev.stopPropagation();
+    location.hash = "#program/" + encodeURIComponent(codeValue) + "/living";
+  });
+  living.addEventListener("keydown", ev => {
+    if(ev.key === "Enter" || ev.key === " "){
+      ev.preventDefault();
+      ev.stopPropagation();
+      location.hash = "#program/" + encodeURIComponent(codeValue) + "/living";
+    }
+  });
+  c.append(row, idea, trustStrip(p.trust_strip || {}), actions);
   c.addEventListener("click", () => { location.hash = "#program/" + encodeURIComponent(p.code || p.id || "") + "/build"; });
   return c;
 }
@@ -658,7 +731,20 @@ function createdProgramCard(p){
   );
   const idea = el("div", {class:"idea", text:"Created program"});
   const grade = p.grade == null ? "" : `Re-graded: ${formatGrade(p.grade)}`;
-  c.append(row, idea, el("div", {class:"cap", text:grade || "Program created"}));
+  const live = el("span", {class:"card-action", role:"link", tabindex:"0", "data-living-open":code, text:"Living / open"});
+  live.addEventListener("click", ev => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    location.hash = "#program/" + encodeURIComponent(code) + "/living";
+  });
+  live.addEventListener("keydown", ev => {
+    if(ev.key === "Enter" || ev.key === " "){
+      ev.preventDefault();
+      ev.stopPropagation();
+      location.hash = "#program/" + encodeURIComponent(code) + "/living";
+    }
+  });
+  c.append(row, idea, el("div", {class:"cap", text:grade || "Program created"}), el("div", {class:"card-actions"}, live));
   return c;
 }
 
@@ -894,12 +980,25 @@ function buildRouteCode(){
   return raw ? decodeURIComponent(raw) : "";
 }
 
+function livingRouteCode(){
+  const hashMatch = location.hash.match(/^#\/?program\/([^/]+)\/living$/);
+  const pathMatch = location.pathname.match(/^\/program\/([^/]+)\/living$/);
+  const raw = hashMatch ? hashMatch[1] : (pathMatch ? pathMatch[1] : "");
+  return raw ? decodeURIComponent(raw) : "";
+}
+
 function stopBuildPolling(){
   if(buildState.poll) clearInterval(buildState.poll);
   if(buildState.controller) buildState.controller.abort();
   buildState.poll = null;
   buildState.controller = null;
   buildState.seq += 1;
+}
+
+function stopLivingPolling(){
+  if(livingState.controller) livingState.controller.abort();
+  livingState.controller = null;
+  livingState.seq += 1;
 }
 
 function renderBuild(code){
@@ -1098,7 +1197,173 @@ function formatBuildTime(value){
   return d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
 }
 
+function renderLiving(code){
+  if(livingState.program === code && (livingState.loading || livingState.data)) return;
+  stopLivingPolling();
+  livingState = {program:code, data:null, loading:true, error:"", controller:null, seq:livingState.seq};
+  document.body.dataset.route = "living";
+  app().className = "screen-living";
+  renderLivingShell();
+  fetchLiving(code);
+}
+
+async function fetchLiving(code){
+  if(livingState.controller) livingState.controller.abort();
+  const controller = new AbortController();
+  const seq = livingState.seq + 1;
+  livingState.seq = seq;
+  livingState.controller = controller;
+  livingState.loading = !livingState.data;
+  livingState.error = "";
+  renderLivingShell();
+  try{
+    let res = await authFetch(`/api/programs/${encodeURIComponent(code)}/living`, {signal:controller.signal});
+    if(res.status === 401 || res.status === 403){ stopLivingPolling(); setToken(""); showSignIn(res.status===403?"That account is not authorized.":""); return; }
+    if(!res.ok && res.status >= 500){
+      res = await authFetch(`/api/programs/${encodeURIComponent(code)}/living`, {signal:controller.signal});
+    }
+    if(res.status === 401 || res.status === 403){ stopLivingPolling(); setToken(""); showSignIn(res.status===403?"That account is not authorized.":""); return; }
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    if(seq !== livingState.seq || livingState.program !== code) return;
+    livingState.data = data && typeof data === "object" ? data : {};
+    livingState.error = "";
+  }catch(e){
+    if(e.name === "AbortError") return;
+    if(seq !== livingState.seq || livingState.program !== code) return;
+    livingState.error = "Could not load living program: " + e.message;
+  }finally{
+    if(seq === livingState.seq && livingState.program === code){
+      livingState.loading = false;
+      if(livingState.controller === controller) livingState.controller = null;
+      renderLivingShell();
+    }
+  }
+}
+
+function renderLivingShell(){
+  app().innerHTML = "";
+  const code = livingState.program || "Program";
+  const data = livingState.data || {};
+  const shell = el("section", {class:"living-shell"},
+    el("a", {class:"back", href:"#/", text:"← Portfolio"}),
+    el("p", {class:"living-born"},
+      "Born from your sentence: ",
+      el("b", {text:data.idea_sentence || "waiting for the program sentence"})
+    ),
+    el("div", {class:"toolbar"},
+      el("div", {},
+        el("h1", {text:data.name ? `${data.name} is ${data.running === false ? "not live yet" : "living"}` : "Living Program"}),
+        el("p", {class:"sub", text:`${data.program || code} live read from the Living BFF.`})
+      )
+    )
+  );
+  if(livingState.error){
+    shell.appendChild(el("div", {class:"living-error", role:"alert", text:livingState.error}));
+    if(!livingState.data){
+      app().appendChild(shell);
+      return;
+    }
+  }
+  if(livingState.loading && !livingState.data){
+    shell.appendChild(el("div", {class:"state", role:"status", text:"Loading living program…"}));
+    app().appendChild(shell);
+    return;
+  }
+  shell.appendChild(renderLivingRunning(data));
+  if(data.running === true){
+    const features = renderLivingFeatures(data);
+    if(features) shell.appendChild(features);
+    const recap = renderLivingRecap(data.recap || {}, data);
+    if(recap) shell.appendChild(recap);
+  }
+  app().appendChild(shell);
+}
+
+function renderLivingRunning(data){
+  if(data.running !== true){
+    return el("section", {class:"notlive", "data-primary-object":"living-app", role:"status"},
+      el("div", {class:"big", text:"Not live yet"}),
+      el("div", {class:"small", text:"This program has no running application URL from the Living BFF yet. When it ships, its address appears here."})
+    );
+  }
+  const top = el("div", {class:"living-top"},
+    el("span", {class:"running-status", text:"Running"}),
+    data.url ? el("span", {class:"living-url", text:data.url}) : null
+  );
+  if(data.url){
+    top.appendChild(el("a", {class:"open-it", href:data.url, target:"_blank", rel:"noopener", text:"Open it"}));
+  }
+  return el("section", {class:"living-window", "data-primary-object":"living-app"},
+    top,
+    el("div", {class:"vitals"},
+      el("div", {class:"vital"}, el("div", {class:"k", text:"Health"}), el("div", {class:"v", text:String(data.health ?? "health unavailable")})),
+      el("div", {class:"vital"}, el("div", {class:"k", text:"Version"}), el("div", {class:"v", text:String(data.version ?? "version unavailable")}))
+    )
+  );
+}
+
+function renderLivingFeatures(data){
+  const all = Array.isArray(data.features) ? data.features : [];
+  if(!all.length) return null;
+  const rows = all.slice(0, LIVING_FEATURE_CAP);
+  const section = el("section", {class:"living-block", "aria-label":"Delivered features"},
+    el("h2", {text:"What it delivers"})
+  );
+  if(data.features_trust_strip) section.appendChild(trustStrip(data.features_trust_strip));
+  const list = el("div", {class:"living-features"});
+  rows.forEach(feature => list.appendChild(el("article", {class:"living-feature"},
+    el("div", {class:"feature-name", text:feature.name || "Delivered feature"}),
+    el("div", {class:"feature-increment", text:feature.increment == null ? "increment unknown" : "from increment " + feature.increment}),
+    el("div", {class:"feature-assurance"}, trustStrip(featureAssuranceStrip(feature.assurance)))
+  )));
+  section.appendChild(list);
+  if(all.length > LIVING_FEATURE_CAP){
+    section.appendChild(el("div", {class:"living-truncated", role:"status", text:`Showing the first ${LIVING_FEATURE_CAP} delivered features from ${all.length} returned.`}));
+  }
+  return section;
+}
+
+function featureAssuranceStrip(assurance){
+  const state = String(assurance || "unknown");
+  if(!assurance) return {total:0, counts:{}, caption:"no assurance data yet"};
+  const counts = {};
+  counts[state] = 1;
+  return {total:1, counts, caption:state.replace(/_/g, "-")};
+}
+
+function renderLivingRecap(recap, data){
+  const steps = [];
+  if(recap && recap.idea_date) steps.push(["The idea", recap.idea_date]);
+  if(recap && recap.vision_date) steps.push(["Graded Vision", recap.vision_date]);
+  if(recap && recap.increments != null) steps.push(["Building", `${recap.increments} increment${Number(recap.increments)===1?"":"s"}`]);
+  if(recap && recap.first_alive) steps.push(["Living", recap.first_alive]);
+  if(!steps.length) return null;
+  const section = el("section", {class:"living-block", "aria-label":"From a sentence to this"},
+    el("h2", {text:"From a sentence to this"})
+  );
+  const journey = el("div", {class:"journey"});
+  steps.forEach((step, i) => {
+    const last = i === steps.length - 1;
+    journey.appendChild(el("div", {class:"journey-step"},
+      el("div", {class:"journey-rail"},
+        el("span", {class:"journey-node" + (last && data && data.running === true ? " now" : "")}),
+        last ? null : el("span", {class:"journey-line"})
+      ),
+      el("div", {class:"journey-body"},
+        el("div", {class:"journey-title", text:step[0]}),
+        el("div", {class:"journey-date", text:String(step[1])})
+      )
+    ));
+  });
+  section.appendChild(journey);
+  return section;
+}
+
 function route(){
+  const livingCode = livingRouteCode();
+  if(livingCode){ stopBuildPolling(); renderLiving(livingCode); return; }
+  stopLivingPolling();
   const buildCode = buildRouteCode();
   if(buildCode){ renderBuild(buildCode); return; }
   stopBuildPolling();
@@ -1132,6 +1397,11 @@ window.FOPSBuild = {
   BUILD_POLL_MS, BUILD_FEED_CAP, buildRouteCode, renderBuild, fetchBuild, stopBuildPolling,
   isBuildDegraded, phaseClass, renderBuildSpec, renderBuildFeed, renderStalls,
   getState:()=>buildState, setState:s=>{ buildState = Object.assign(buildState, s || {}); }
+};
+window.FOPSLiving = {
+  LIVING_FEATURE_CAP, livingRouteCode, renderLiving, fetchLiving, stopLivingPolling, renderLivingShell,
+  renderLivingRunning, renderLivingFeatures, featureAssuranceStrip, renderLivingRecap,
+  getState:()=>livingState, setState:s=>{ livingState = Object.assign(livingState, s || {}); }
 };
 init();
 </script>
