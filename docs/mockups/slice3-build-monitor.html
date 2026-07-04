@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Build Monitor — FOPSCON Slice 3 (target mockup)</title>
+<style>
+  /* Reuses the Slice-0/1/2 D1 token system so the console is one coherent surface. */
+  :root{
+    color-scheme: light;
+    --bg:#f7f7f4; --surface:#fff; --line:#e3e3dd; --ink:#1f2933; --ink-soft:#5b6672; --ink-faint:#8a94a0;
+    --accent:#2f6f4f;
+    --two-key:#2f8f5b; --one-key:#d69a2d; --vacuous:#e07b39; --blocked:#c9483b; --unknown:#b7bcc4;
+    --r-sm:6px; --r-md:10px; --r-lg:16px; --r-pill:999px;
+    --t-11:.6875rem; --t-12:.75rem; --t-13:.8125rem; --t-14:.875rem; --t-16:1rem; --t-18:1.125rem;
+    --t-22:1.375rem; --t-28:1.75rem; --t-34:2.125rem;
+    font-family: system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--ink); background:var(--bg);
+  }
+  *{box-sizing:border-box}
+  body{margin:0; min-height:100vh; overflow-x:hidden}                 /* D6 */
+  :focus-visible{outline:3px solid #2f6f4f66; outline-offset:2px; border-radius:var(--r-sm)}  /* D3 */
+  @media (prefers-reduced-motion: reduce){*{animation:none !important; transition:none !important}}
+
+  header.top{position:sticky; top:0; z-index:5; background:var(--surface); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:.7rem; padding:.7rem clamp(.85rem,3vw,1.25rem)}
+  .brand{font-size:var(--t-14); font-weight:650; letter-spacing:-.01em; white-space:nowrap}
+  .brand small{color:var(--ink-faint); font-weight:500}
+  .spacer{flex:1}
+  .prog-switch{font-size:var(--t-13); font-weight:600; color:var(--ink); background:var(--bg);
+    border:1px solid var(--line); border-radius:var(--r-pill); padding:.35rem .8rem}
+  .lens{font-size:var(--t-12); color:var(--ink-faint)}
+
+  main{max-width:900px; margin:0 auto; padding:clamp(.85rem,3vw,1.5rem)}
+  h1{font-size:var(--t-22); margin:.1rem 0 .1rem; letter-spacing:-.02em}
+  .sub{color:var(--ink-soft); font-size:var(--t-13); margin:0 0 1.2rem; line-height:1.4}
+
+  .layout{display:grid; grid-template-columns:1fr; gap:1.1rem}
+  @media (min-width:760px){.layout{grid-template-columns:1fr 260px}}
+
+  /* ── the build tree: the ONE primary object (D2) ── */
+  .builds{display:flex; flex-direction:column; gap:.9rem; min-width:0}
+  .spec{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:.95rem; min-width:0}
+  .spec-head{display:flex; align-items:center; gap:.55rem; flex-wrap:wrap}
+  .spec-id{font-size:var(--t-12); font-weight:650; color:var(--ink); background:var(--bg);
+    border:1px solid var(--line); border-radius:var(--r-sm); padding:.15rem .45rem}
+  .spec-title{font-size:var(--t-16); font-weight:600; letter-spacing:-.01em; min-width:0}
+  .spec-status{margin-left:auto; font-size:var(--t-11); text-transform:uppercase; letter-spacing:.05em;
+    font-weight:700; padding:.14rem .5rem; border-radius:var(--r-pill); color:#fff}
+  .st-building{background:var(--accent)} .st-blocked{background:var(--blocked)} .st-done{background:var(--two-key)}
+
+  /* the phase tree scrolls in ITS OWN container so the page never scrolls sideways (D6) */
+  .phases-scroll{margin-top:.7rem; overflow-x:auto; -webkit-overflow-scrolling:touch}
+  .phases{display:flex; flex-direction:column; gap:.4rem; min-width:340px}
+  .phase{display:flex; align-items:center; gap:.6rem; padding:.5rem .6rem; border:1px solid var(--line);
+    border-radius:var(--r-md); background:var(--bg)}
+  .seq{flex:none; width:1.4rem; height:1.4rem; border-radius:50%; display:grid; place-items:center;
+    font-size:var(--t-11); font-weight:700; color:var(--ink-soft); background:var(--surface); border:1px solid var(--line)}
+  .ptype{font-size:var(--t-13); font-weight:600; white-space:nowrap}
+  .pmeta{font-size:var(--t-12); color:var(--ink-faint); white-space:nowrap}
+  .gates{margin-left:auto; display:flex; gap:.35rem; flex-wrap:wrap}
+  /* a gate chip — a FAILED gate is LOUD (RED), never hidden or shown green (the honesty law here) */
+  .gate{font-size:var(--t-11); font-weight:650; padding:.12rem .45rem; border-radius:var(--r-sm);
+    display:inline-flex; align-items:center; gap:.28rem; border:1px solid transparent}
+  .gate .g-dot{width:7px; height:7px; border-radius:2px; flex:none}
+  .gate.pass{background:#eef7f1; color:var(--two-key); border-color:#cfe7d8} .gate.pass .g-dot{background:var(--two-key)}
+  .gate.fail{background:#fbecea; color:var(--blocked); border-color:#eecbc5; font-weight:750} .gate.fail .g-dot{background:var(--blocked)}
+  .gate.run{background:#eef2f0; color:var(--accent); border-color:#d3e0d9} .gate.run .g-dot{background:var(--accent); animation:pulse 1s ease-in-out infinite}
+  .gate.pend{background:var(--bg); color:var(--ink-faint); border-color:var(--line)} .gate.pend .g-dot{background:var(--unknown)}
+  @keyframes pulse{0%,100%{opacity:.3} 50%{opacity:1}}
+  .phase.failed{border-color:#eecbc5; background:#fdf4f2}
+
+  /* stalled spec — the blocker + recommended action, surfaced not buried */
+  .stall{border-color:#eecbc5}
+  .stall-note{margin-top:.6rem; display:flex; flex-direction:column; gap:.35rem; font-size:var(--t-13); line-height:1.45}
+  .stall-blk{color:var(--blocked); font-weight:600}
+  .stall-rec{color:var(--ink-soft)}
+  .stall-rec b{color:var(--ink)}
+
+  /* ── the loop activity feed (secondary — motion, so the screen isn't static) ── */
+  .feed{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:.85rem; align-self:start}
+  .feed h2{font-size:var(--t-12); text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); margin:0 0 .6rem}
+  .ev{display:flex; gap:.5rem; font-size:var(--t-12); line-height:1.4; padding:.3rem 0; border-top:1px solid var(--line)}
+  .ev:first-of-type{border-top:none}
+  .ev .ts{color:var(--ink-faint); flex:none; font-variant-numeric:tabular-nums}
+  .ev .who{font-weight:600; color:var(--accent)}
+  .live{display:inline-flex; align-items:center; gap:.35rem; font-size:var(--t-11); color:var(--accent)}
+  .live .g-dot{width:7px; height:7px; border-radius:50%; background:var(--accent); animation:pulse 1s ease-in-out infinite}
+
+  section.panel{margin-top:1.6rem}
+  .panel-tag{font-size:var(--t-11); text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); margin:0 0 .55rem}
+  .divider{height:1px; background:var(--line); margin:2rem 0 1rem}
+
+  /* honest idle */
+  .idle{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg);
+    padding:1.5rem 1.2rem; text-align:center; display:flex; flex-direction:column; gap:.4rem; align-items:center}
+  .idle .big{font-size:var(--t-18); font-weight:650; color:var(--ink-soft)}
+  .idle .small{font-size:var(--t-13); color:var(--ink-faint)}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="brand">Foundation <small>· Build monitor</small></span>
+  <span class="spacer"></span>
+  <span class="prog-switch">KITH ▾</span>
+  <span class="lens">Operator lens</span>
+</header>
+
+<main>
+  <h1>Watch it take shape</h1>
+  <p class="sub">The live forge state for this program — active specs, each phase and its gate outcomes, and what
+    the loop is doing right now. A failing gate is shown loudly, never smoothed over.</p>
+
+  <div class="layout">
+    <!-- THE BUILD TREE — the one primary object (D2) -->
+    <div class="builds">
+
+      <!-- an actively-building spec: phases + honest gate outcomes (incl. a FAILED gate, RED) -->
+      <div class="spec">
+        <div class="spec-head">
+          <span class="spec-id">#1712</span>
+          <span class="spec-title">Overdue-nudge home — mark-reached-out resets the clock</span>
+          <span class="spec-status st-building">building</span>
+        </div>
+        <div class="phases-scroll">
+          <div class="phases">
+            <div class="phase">
+              <span class="seq">1</span><span class="ptype">scaffold</span><span class="pmeta">codex · 2m</span>
+              <span class="gates"><span class="gate pass"><span class="g-dot"></span>semgrep</span>
+                <span class="gate pass"><span class="g-dot"></span>merge</span></span>
+            </div>
+            <div class="phase failed">
+              <span class="seq">2</span><span class="ptype">build</span><span class="pmeta">codex · now</span>
+              <span class="gates">
+                <span class="gate pass"><span class="g-dot"></span>semgrep</span>
+                <span class="gate fail"><span class="g-dot"></span>UAT failed</span>
+                <span class="gate pend"><span class="g-dot"></span>merge</span></span>
+            </div>
+            <div class="phase">
+              <span class="seq">3</span><span class="ptype">integration</span><span class="pmeta">queued</span>
+              <span class="gates"><span class="gate pend"><span class="g-dot"></span>pending</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- a stalled spec: blocker + recommended action, surfaced -->
+      <div class="spec stall">
+        <div class="spec-head">
+          <span class="spec-id">#1709</span>
+          <span class="spec-title">Contact import — CSV column mapping</span>
+          <span class="spec-status st-blocked">stalled</span>
+        </div>
+        <div class="phases-scroll">
+          <div class="phases">
+            <div class="phase failed">
+              <span class="seq">2</span><span class="ptype">build</span><span class="pmeta">grok · stalled 34m</span>
+              <span class="gates"><span class="gate fail"><span class="g-dot"></span>infra: auth expired</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="stall-note">
+          <span class="stall-blk">Blocked: worker credential expired mid-phase (no forward progress in 34m).</span>
+          <span class="stall-rec">Recommended: <b>re-seed the grok worker credential</b> and re-dispatch phase 2 —
+            the phase is idempotent, no partial state to clean up.</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- the loop activity feed — live motion (secondary) -->
+    <aside class="feed">
+      <h2>Loop activity <span class="live"><span class="g-dot"></span>live</span></h2>
+      <div class="ev"><span class="ts">17:44</span><span><span class="who">conductor</span> dispatched #1712 phase 2 → codex</span></div>
+      <div class="ev"><span class="ts">17:43</span><span><span class="who">uat_gate</span> #1712 phase 2 — <b>failed</b> (1 assertion)</span></div>
+      <div class="ev"><span class="ts">17:41</span><span><span class="who">semgrep</span> #1712 phase 2 — passed</span></div>
+      <div class="ev"><span class="ts">17:38</span><span><span class="who">conductor</span> #1712 phase 1 merged</span></div>
+      <div class="ev"><span class="ts">17:10</span><span><span class="who">watchdog</span> flagged #1709 stalled (34m)</span></div>
+    </aside>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────
+       Below: the other STATE this screen renders, shown for review.
+       On the real screen only one is on screen at a time.
+       ───────────────────────────────────────────────────────────── -->
+  <div class="divider"></div>
+
+  <section class="panel">
+    <p class="panel-tag">state · no active build (honest idle)</p>
+    <div class="idle">
+      <div class="big">Idle — no active build</div>
+      <div class="small">This program has no specs in flight right now. When the loop dispatches one,
+        its phases and gate outcomes appear here live.</div>
+    </div>
+  </section>
+</main>
+</body>
+</html>
