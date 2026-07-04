@@ -16,6 +16,14 @@ def create_app() -> FastAPI:
     from fastapi.responses import FileResponse
     from fastapi.staticfiles import StaticFiles
 
+    # FAIL-CLOSED deploy contract (CoEv2 #158): auth ON but no allowlist = the console open to every
+    # Google account. Refuse to boot loudly rather than run wide-open. DEV (auth off) is unaffected.
+    if settings.auth_enabled and not settings.allowed_email_set:
+        raise RuntimeError(
+            "AUTH_ENABLED=true but ALLOWED_EMAILS is empty — refusing to boot: an empty allowlist "
+            "would admit ANY verified Google account. Set ALLOWED_EMAILS (comma-separated)."
+        )
+
     application = FastAPI(title=settings.app_name, version=settings.version)
     application.include_router(health_router)
 

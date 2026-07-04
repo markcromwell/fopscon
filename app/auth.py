@@ -54,8 +54,14 @@ async def require_user(request: Request) -> dict:
         raise HTTPException(401, "invalid or expired sign-in") from exc
     if not info.get("email_verified", False):
         raise HTTPException(403, "email not verified")
-    email = (info.get("email") or "").lower()
     allow = settings.allowed_email_set
-    if allow and email not in allow:
+    if not allow:
+        # FAIL-CLOSED: auth is ON but no allowlist is configured -> deny ALL. An empty allowlist must
+        # NEVER admit every verified Google account (the whole internet). A 'MUST configure' comment is
+        # not a guard (CoEv2 #158 fail-open-composition class). The deploy contract is enforced here +
+        # at startup (see create_app), so a misconfigured deploy denies rather than opens.
+        raise HTTPException(403, "console allowlist not configured")
+    email = (info.get("email") or "").lower()
+    if email not in allow:
         raise HTTPException(403, "not authorized for this console")
     return {"email": email}
