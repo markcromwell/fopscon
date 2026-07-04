@@ -136,10 +136,49 @@
   .success{border:1px solid var(--two-key); background:var(--surface); border-radius:var(--r-md); padding:.85rem;
     color:var(--ink); font-size:var(--t-14)}
 
+  /* Needs You: phone-first inbox, one primary object. */
+  .screen-needs{max-width:520px}
+  .needs-shell{display:flex; flex-direction:column; gap:.85rem}
+  .needs-list{display:flex; flex-direction:column; gap:.7rem; width:100%; max-width:100%}
+  .needs-item{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:.9rem;
+    display:flex; flex-direction:column; gap:.65rem; max-width:100%}
+  .needs-item[aria-expanded="true"]{border-color:var(--accent)}
+  .needs-meta{display:flex; align-items:center; gap:.45rem; flex-wrap:wrap}
+  .program-pill{font-size:var(--t-12); font-weight:700; color:var(--ink); background:var(--bg);
+    border:1px solid var(--line); border-radius:var(--r-sm); padding:.15rem .45rem; max-width:100%; overflow-wrap:anywhere}
+  .kind-tag{font-size:var(--t-11); text-transform:uppercase; letter-spacing:.05em; font-weight:750;
+    padding:.15rem .45rem; border-radius:var(--r-sm); color:#fff}
+  .kind-tag.signoff{background:var(--accent)}
+  .kind-tag.clarify{background:#3a72a8}
+  .kind-tag.prioritize{background:#7a5aa8}
+  .kind-tag.steer{background:var(--vacuous)}
+  .needs-age{margin-left:auto; font-size:var(--t-12); color:var(--ink-faint); white-space:nowrap}
+  .needs-ask{font-size:var(--t-16); line-height:1.38; overflow-wrap:anywhere}
+  .needs-action{min-height:44px}
+  .assurance-empty{display:flex; align-items:center; gap:.5rem; font-size:var(--t-12); color:var(--ink-faint);
+    background:var(--bg); border:1px solid var(--line); border-radius:var(--r-md); padding:.5rem .6rem}
+  .assurance-empty .hatch{width:36px; height:10px; flex:none; border-radius:var(--r-sm);
+    background:repeating-linear-gradient(45deg,var(--unknown),var(--unknown) 3px,var(--bg) 3px,var(--bg) 6px)}
+  .resolve-box{border:1px solid var(--line); background:var(--bg); border-radius:var(--r-md); padding:.75rem;
+    display:flex; flex-direction:column; gap:.65rem}
+  .decision-row{display:flex; flex-wrap:wrap; gap:.5rem}
+  .decision-row .btn{min-height:44px}
+  .decision-row .btn[aria-pressed="true"]{background:var(--accent); color:#fff}
+  .resolve-note{width:100%; min-height:58px; resize:vertical; font:inherit; font-size:var(--t-14);
+    line-height:1.35; padding:.55rem; border:1px solid var(--line); border-radius:var(--r-md);
+    background:var(--surface); color:var(--ink)}
+  .tapcount{font-size:var(--t-11); color:var(--ink-faint); font-style:italic}
+  .empty-state{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg);
+    padding:1.5rem 1rem; text-align:center; display:flex; flex-direction:column; gap:.35rem}
+  .empty-state .big{font-size:var(--t-18); font-weight:700; color:var(--ink)}
+  .empty-state .small{font-size:var(--t-13); color:var(--ink-soft); line-height:1.4}
+
   @media (max-width: 430px){
     main{padding:1rem}
     header.top{gap:.45rem}
     .brand small{display:none}
+    .lens{display:none}
+    .needs{padding:.35rem .45rem}
     .new-idea{padding:.38rem .62rem}
   }
 
@@ -192,6 +231,7 @@ const samples = [
   "A reading tracker that turns a stack of PDFs into a weekly progress arc."
 ];
 let draftState = {idea:"", vision:null, inFlight:false, error:"", timedOut:false, startOpen:false, starting:false, created:null};
+let needsState = {items:[], count:0, source:"", degraded:[], loading:false, error:"", openId:"", decision:"", resolving:false, note:""};
 
 // Trust Strip renderer — the ONE component (design §3). Renders a mixbar from counts + a DATA-COMPUTED
 // caption. Never emits a static universal claim; an empty manifest renders an honest hatched bar + the
@@ -276,6 +316,15 @@ function loadStoredCreated(){
   try{ return JSON.parse(raw); }catch(_){ return null; }
 }
 
+function setNeedsBadge(count){
+  const badge = document.getElementById("needs-badge");
+  if(!badge) return;
+  const n = Number(count) || 0;
+  badge.textContent = String(n);
+  badge.setAttribute("data-count", String(n));
+  badge.setAttribute("aria-label", `${n} pending item${n===1?"":"s"}`);
+}
+
 async function load(){
   renderPortfolioShell();
   const grid = document.getElementById("grid");
@@ -307,6 +356,224 @@ function renderPortfolioShell(){
     el("a", {class:"new-idea", href:"#/new", "aria-label":"New idea", text:"＋ New idea"})
   );
   app().append(title, el("div", {class:"grid", id:"grid"}), el("div", {class:"state", id:"state", role:"status"}));
+}
+
+async function renderNeeds(){
+  document.body.dataset.route = "needs";
+  app().className = "screen-needs";
+  needsState = Object.assign(needsState, {loading:true, error:""});
+  renderNeedsShell();
+  try{
+    const res = await authFetch("/api/needs-you");
+    if(res.status === 401 || res.status === 403){ setToken(""); showSignIn(res.status===403?"That account is not authorized.":""); return; }
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    applyNeedsData(await res.json());
+  }catch(e){
+    needsState.error = "Could not load Needs You: " + e.message;
+    needsState.loading = false;
+    renderNeedsShell();
+  }
+}
+
+function applyNeedsData(data){
+  needsState = Object.assign(needsState, {
+    items:Array.isArray(data.items) ? data.items : [],
+    count:Number(data.count) || 0,
+    source:data.source || "",
+    degraded:Array.isArray(data.degraded) ? data.degraded : [],
+    loading:false,
+    error:"",
+    openId:"",
+    decision:"",
+    resolving:false,
+    note:""
+  });
+  setNeedsBadge(needsState.count);
+  renderNeedsShell();
+}
+
+function renderNeedsShell(){
+  app().innerHTML = "";
+  const shell = el("section", {class:"needs-shell", "data-primary-object":"needs-list"},
+    el("a", {class:"back", href:"#/", text:"← Portfolio"}),
+    el("div", {},
+      el("h1", {text:"Needs You"}),
+      el("p", {class:"sub", text:"Pending human decisions across programs, in the order returned by the BFF."})
+    )
+  );
+  const list = el("div", {class:"needs-list", id:"needs-list"});
+  if(needsState.loading){
+    list.appendChild(el("div", {class:"state", role:"status", text:"Loading Needs You…"}));
+  }else if(needsState.error){
+    list.appendChild(el("div", {class:"state err", role:"alert", text:needsState.error}));
+  }else if(needsState.count === 0 && needsState.degraded.length){
+    list.appendChild(el("div", {class:"state err", role:"status", text:"Could not reach every source for Needs You."}));
+  }else if(needsState.count === 0){
+    list.appendChild(el("div", {class:"empty-state", role:"status"},
+      el("div", {class:"big", text:"Nothing needs you right now"}),
+      el("div", {class:"small", text:"The inbox is empty because the BFF returned zero pending items."})
+    ));
+  }else{
+    needsState.items.forEach(item => list.appendChild(renderNeedsItem(item)));
+  }
+  shell.appendChild(list);
+  app().appendChild(shell);
+}
+
+function renderNeedsItem(item){
+  const open = needsState.openId === item.id;
+  const box = el("article", {class:"needs-item", "data-needs-id":item.id || "", "data-kind":item.kind || "", "aria-expanded":open});
+  box.appendChild(el("div", {class:"needs-meta"},
+    el("span", {class:"program-pill", text:item.program || "Program"}),
+    el("span", {class:"kind-tag " + kindClass(item.kind), text:kindLabel(item.kind)}),
+    el("span", {class:"needs-age", text:ageFrom(item.created_at)})
+  ));
+  box.appendChild(el("div", {class:"needs-ask", text:item.ask || ""}));
+  if(item.kind === "signoff"){
+    box.appendChild(item.assurance === null ? noAssuranceStrip() : trustStrip(item.assurance || {}));
+  }
+  if(open) box.appendChild(renderResolveBox(item));
+  else box.appendChild(el("div", {class:"actions"},
+    el("button", {class:"btn needs-action", type:"button", onclick:()=>openNeedsItem(item.id), text:primaryActionLabel(item.kind)})
+  ));
+  return box;
+}
+
+function noAssuranceStrip(){
+  return el("div", {class:"assurance-empty", "data-assurance":"none"},
+    el("span", {class:"hatch", "aria-hidden":"true"}),
+    el("span", {text:"no assurance data yet"})
+  );
+}
+
+function openNeedsItem(id){
+  needsState.openId = id;
+  needsState.decision = "";
+  needsState.resolving = false;
+  needsState.note = "";
+  renderNeedsShell();
+}
+
+function actionSet(kind){
+  if(kind === "signoff") return [
+    {label:"Accept", decision:"accept"},
+    {label:"Request changes", decision:"request_changes", danger:true}
+  ];
+  if(kind === "steer") return [{label:"Accept", decision:"accept"}];
+  return [];
+}
+
+function renderResolveBox(item){
+  const actions = actionSet(item.kind);
+  const selected = needsState.decision;
+  const noteId = "needs-note-" + String(item.id || "").replace(/[^a-z0-9_-]/gi, "-");
+  const box = el("div", {class:"resolve-box", role:"group", "aria-label":"Resolve item"},
+    el("div", {class:"tapcount", text:"Tap 1 open · Tap 2 decide · Tap 3 confirm"})
+  );
+  if(actions.length){
+    box.appendChild(el("div", {class:"decision-row"},
+      actions.map(a => el("button", {
+        class:"btn " + (a.danger ? "danger" : "ghost"),
+        type:"button",
+        "data-decision":a.decision,
+        "aria-pressed":selected === a.decision,
+        disabled:needsState.resolving,
+        onclick:()=>selectNeedsDecision(a.decision),
+        text:a.label
+      }))
+    ));
+    box.appendChild(el("label", {class:"field", for:noteId, text:"Note (optional)"}));
+    box.appendChild(el("textarea", {
+      class:"resolve-note",
+      id:noteId,
+      placeholder:"Optional note",
+      disabled:needsState.resolving,
+      oninput:ev=>{ needsState.note = ev.currentTarget.value; }
+    }));
+    const textarea = box.querySelector("textarea");
+    if(textarea) textarea.value = needsState.note || "";
+    box.appendChild(el("div", {class:"actions"},
+      el("button", {
+        class:"btn needs-action",
+        type:"button",
+        id:"needs-confirm",
+        disabled:needsState.resolving || !selected,
+        onclick:()=>confirmNeedsResolve(item),
+        text:needsState.resolving ? "Confirming…" : "Confirm"
+      }),
+      el("button", {class:"btn ghost needs-action", type:"button", disabled:needsState.resolving, onclick:()=>openNeedsItem(""), text:"Cancel"})
+    ));
+  }else{
+    box.appendChild(el("div", {class:"note", text:"This item type is not resolvable from this client yet."}));
+  }
+  if(needsState.error) box.appendChild(el("div", {class:"err", role:"alert", text:needsState.error}));
+  return box;
+}
+
+function selectNeedsDecision(decision){
+  if(needsState.resolving) return;
+  if(decision !== "accept" && decision !== "request_changes") return;
+  needsState.decision = decision;
+  renderNeedsShell();
+}
+
+async function confirmNeedsResolve(item){
+  if(needsState.resolving || !needsState.decision) return;
+  needsState.resolving = true;
+  needsState.error = "";
+  renderNeedsShell();
+  const body = {decision:needsState.decision};
+  if((needsState.note || "").trim()) body.note = needsState.note.trim();
+  try{
+    const res = await authFetch(`/api/needs-you/${item.id}/resolve`, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(body)
+    });
+    if(res.status === 401 || res.status === 403){ setToken(""); showSignIn(res.status===403?"That account is not authorized.":""); return; }
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    applyNeedsData(await res.json());
+  }catch(e){
+    needsState.resolving = false;
+    needsState.error = "Could not resolve this item: " + e.message;
+    renderNeedsShell();
+  }
+}
+
+function kindClass(kind){
+  return ["signoff","clarify","prioritize","steer"].includes(kind) ? kind : "steer";
+}
+
+function kindLabel(kind){
+  if(kind === "signoff") return "signoff";
+  if(kind === "clarify") return "clarify";
+  if(kind === "prioritize") return "prioritize";
+  if(kind === "steer") return "steer";
+  return "item";
+}
+
+function primaryActionLabel(kind){
+  if(kind === "signoff") return "Review";
+  if(kind === "clarify") return "Answer";
+  if(kind === "prioritize") return "Choose";
+  if(kind === "steer") return "Review";
+  return "Open";
+}
+
+function ageFrom(value){
+  const t = Date.parse(value || "");
+  if(!Number.isFinite(t)) return "age unknown";
+  const seconds = Math.max(0, Math.floor((Date.now() - t) / 1000));
+  if(seconds < 60) return "just now";
+  const minutes = Math.floor(seconds / 60);
+  if(minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if(hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if(days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  if(months < 12) return `${months}mo ago`;
+  return `${Math.floor(months / 12)}y ago`;
 }
 
 function createdProgramCard(p){
@@ -549,6 +816,7 @@ function programName(vision, idea){
 
 function route(){
   if(location.hash === "#/new" || location.pathname === "/new") renderNew();
+  else if(location.hash === "#/needs" || location.hash === "#needs" || location.pathname === "/needs") renderNeeds();
   else load();
 }
 
@@ -568,6 +836,10 @@ window.addEventListener("hashchange", route);
 window.FOPSIdeaVision = {
   samples, validVision, renderVision, renderGrade, storyText, formatGrade, programName,
   getState:()=>draftState, setState:s=>{ draftState = Object.assign(draftState, s || {}); }
+};
+window.FOPSNeedsYou = {
+  actionSet, ageFrom, kindLabel, applyNeedsData,
+  getState:()=>needsState, setState:s=>{ needsState = Object.assign(needsState, s || {}); }
 };
 init();
 </script>
