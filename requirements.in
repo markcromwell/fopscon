@@ -2,6 +2,7 @@ fastapi
 uvicorn[standard]
 pydantic-settings
 httpx
+google-auth          # Google id_token verification (sign-in gate)
 # To add a dependency: put it here, then run:
 #   uv pip compile requirements.in -o requirements.lock
 # and commit BOTH files. Extras the boot-smoke will demand if you use them:

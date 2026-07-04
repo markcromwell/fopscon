@@ -11,13 +11,20 @@ from __future__ import annotations
 import asyncio
 
 import httpx
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.assurance import program_trust_items
+from app.auth import require_user
 from app.config import settings
 from app.trust_strip import build_trust_strip
 
 router = APIRouter(prefix="/api", tags=["portfolio"])
+
+
+@router.get("/me")
+async def me(user: dict = Depends(require_user)) -> dict:
+    """Who am I — the SPA calls this to decide sign-in vs portfolio (401 -> show sign-in)."""
+    return {"email": user.get("email"), "dev": user.get("dev", False)}
 
 
 def _lifecycle_stage(prog: dict) -> str:
@@ -57,8 +64,11 @@ def _as_list(raw, *keys) -> list:
 
 
 @router.get("/portfolio")
-async def portfolio() -> dict:
-    """Every deliverable program as a card with a Trust Strip computed from its accepted increments."""
+async def portfolio(user: dict = Depends(require_user)) -> dict:
+    """Every deliverable program as a card with a Trust Strip computed from its accepted increments.
+
+    Gated by require_user (DoS #4): unauthenticated -> 401 and the SPA renders the sign-in screen.
+    """
     try:
         async with httpx.AsyncClient() as client:
             raw = await _sov_get(client, "/coding/programs")

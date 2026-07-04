@@ -70,9 +70,30 @@
 
   .state{font-size:var(--t-13); color:var(--ink-soft); padding:2rem 0}
   .err{color:var(--blocked)}
+
+  /* sign-in gate (DoS #4: unauth shows sign-in, NEVER the portfolio) */
+  #signin{position:fixed; inset:0; z-index:20; background:var(--bg); display:none; place-items:center}
+  #signin.show{display:grid}
+  .signin-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg);
+    padding:2rem; max-width:360px; text-align:center; display:flex; flex-direction:column; gap:1rem; align-items:center}
+  .signin-card h2{margin:0; font-size:var(--t-18)}
+  .signin-card p{margin:0; color:var(--ink-soft); font-size:var(--t-13)}
 </style>
+<script src="https://accounts.google.com/gsi/client" async></script>
 </head>
 <body>
+<div id="signin" role="dialog" aria-modal="true" aria-label="Sign in">
+  <div class="signin-card">
+    <h2>Foundation Operator Console</h2>
+    <p>Sign in with your authorized Google account to continue.</p>
+    <div id="g_id_onload"
+         data-client_id="914839164404-675qnmh7juchfrsh89674dat47qelbg7.apps.googleusercontent.com"
+         data-callback="onGoogleCredential" data-auto_prompt="false"></div>
+    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline"
+         data-text="signin_with" data-shape="pill"></div>
+    <p id="signin-msg" class="err" role="alert"></p>
+  </div>
+</div>
 <header class="top">
   <span class="brand">Foundation <small>Operator Console</small></span>
   <span class="spacer"></span>
@@ -131,12 +152,30 @@ function card(p){
   return c;
 }
 
+// ── auth: a Google id_token bearer, stored per session; unauth -> sign-in screen (DoS #4) ──
+const TOKEN_KEY = "fops_idtoken";
+function getToken(){ try{ return localStorage.getItem(TOKEN_KEY) || ""; }catch(_){ return ""; } }
+function setToken(t){ try{ t ? localStorage.setItem(TOKEN_KEY,t) : localStorage.removeItem(TOKEN_KEY); }catch(_){}}
+function authFetch(url){
+  const h = {"Accept":"application/json"}; const t = getToken(); if(t) h["Authorization"] = "Bearer " + t;
+  return fetch(url, {headers:h});
+}
+function showSignIn(msg){
+  document.getElementById("signin").classList.add("show");
+  if(msg) document.getElementById("signin-msg").textContent = msg;
+}
+function hideSignIn(){ document.getElementById("signin").classList.remove("show"); }
+// GSI credential callback (declared on window for the data-callback attribute)
+window.onGoogleCredential = function(resp){
+  if(resp && resp.credential){ setToken(resp.credential); hideSignIn(); init(); }
+};
+
 async function load(){
   const grid = document.getElementById("grid");
   const state = document.getElementById("state");
   try{
-    const res = await fetch("/api/portfolio", {headers:{"Accept":"application/json"}});
-    if(res.status === 401){ state.textContent = "Sign-in required."; return; }
+    const res = await authFetch("/api/portfolio");
+    if(res.status === 401 || res.status === 403){ setToken(""); showSignIn(res.status===403?"That account is not authorized.":""); return; }
     if(!res.ok) throw new Error("HTTP " + res.status);
     const d = await res.json();
     document.getElementById("portfolio-sub").textContent =
@@ -158,7 +197,10 @@ function setLens(l){
 document.getElementById("lens-po").addEventListener("click", ()=>setLens("po"));
 document.getElementById("lens-op").addEventListener("click", ()=>setLens("op"));
 setLens((()=>{ try{ return localStorage.getItem("fops_lens") || "po"; }catch(_){ return "po"; }})());
-load();
+
+// init: try to load the portfolio; a 401/403 flips to the sign-in screen (load() handles it).
+function init(){ load(); }
+init();
 </script>
 </body>
 </html>
