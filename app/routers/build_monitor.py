@@ -31,8 +31,27 @@ _TERMINAL_OR_PRE = frozenset({"complete", "cancelled", "draft"})
 
 # Phase statuses that are a FAILURE the operator must see loudly. Carried verbatim; the client renders RED.
 FAILING_PHASE_STATUSES = frozenset({
-    "failed", "push_failed", "needs_human", "error", "blocked", "push_error",
+    "failed", "push_failed", "push_error", "needs_human", "error", "blocked",
 })
+
+# Phase statuses that are EXPLICITLY benign — normal flow / in-progress / success. On a "a failure is
+# impossible to miss" screen, GREEN REQUIRES EXPLICIT SUCCESS (CoEv2 honesty catch): only these render
+# calm. Anything that is neither failing NOR explicitly-ok is classed "unknown" and the client renders it
+# DISTINCTLY (neutral/amber), never green-by-default — a novel/unrecognized status must not read as fine.
+KNOWN_OK_PHASE_STATUSES = frozenset({
+    "pending", "queued", "running", "implementing", "dispatched",
+    "reviewing", "in_review", "waiting_approval",
+    "done", "complete", "merged", "passed",
+})
+
+
+def status_class(status: str) -> str:
+    """failing → RED · ok → calm · unknown → neutral/distinct (never green-by-default)."""
+    if status in FAILING_PHASE_STATUSES:
+        return "failing"
+    if status in KNOWN_OK_PHASE_STATUSES:
+        return "ok"
+    return "unknown"
 
 
 async def _sov_get(client: httpx.AsyncClient, path: str):
@@ -57,12 +76,14 @@ def _as_list(raw, *keys) -> list:
 
 def _phase_view(p: dict) -> dict:
     status = p.get("status") or "unknown"
+    cls = status_class(status)
     return {
         "seq": p.get("seq"),
         "title": p.get("title") or "",
         "type": p.get("phase_type") or p.get("type") or "",
         "status": status,
-        "failing": status in FAILING_PHASE_STATUSES,  # the client renders this RED — honesty, not smoothing
+        "status_class": cls,             # ok | failing | unknown — the client colours from this
+        "failing": cls == "failing",     # the client renders this RED — honesty, not smoothing
         "provider": p.get("provider_override") or p.get("provider"),
     }
 
@@ -102,24 +123,37 @@ async def program_build(code: str, user: dict = Depends(require_user)) -> dict:
         except httpx.HTTPError as exc:
             raise HTTPException(502, f"SOV unavailable: {exc}") from exc
         pid = prog.get("id")
+        degraded: list[str] = []
 
         async def _specs():
             raw = await _sov_get(client, f"/coding/specs?program_id={pid}")
+            # A 200 with an UNRECOGNIZED shape must NOT read as "no active build" (the Slice-2 inversion,
+            # applied here): _as_list would return [] either way, so we detect a malformed read explicitly
+            # and flag `degraded` — the client then renders "couldn't read build state", not a reassuring idle.
+            recognizable = isinstance(raw, list) or (
+                isinstance(raw, dict) and any(isinstance(raw.get(k), list) for k in ("specs", "data"))
+            )
+            if not recognizable:
+                degraded.append("specs")
+                return []
             specs = [s for s in _as_list(raw, "specs", "data") if s.get("program_id") == pid]
             active = [s for s in specs if (s.get("status") or "") not in _TERMINAL_OR_PRE]
 
             async def _with_phases(s):
+                phases_unavailable = False
                 try:
                     ph = await _sov_get(client, f"/coding/specs/{s['id']}/phases")
                     phases = [_phase_view(p) for p in _as_list(ph, "phases")]
-                except Exception:  # noqa: BLE001 — a phase-fetch failure omits phases, never crashes the view
-                    phases = []
+                except Exception:  # noqa: BLE001 — a phase-fetch failure marks the spec, never a quiet green
+                    phases, phases_unavailable = [], True
                 return {
                     "id": s.get("id"),
                     "title": s.get("title"),
                     "status": s.get("status"),
                     "phases": phases,
-                    "has_failure": any(p["failing"] for p in phases),  # roll-up for a loud badge
+                    "phases_unavailable": phases_unavailable,  # don't let an unread phase-set read as benign
+                    "has_failure": any(p["failing"] for p in phases),          # roll-up: loud red badge
+                    "has_unknown": any(p["status_class"] == "unknown" for p in phases),  # novel status → distinct
                 }
 
             return await asyncio.gather(*[_with_phases(s) for s in active])
@@ -154,11 +188,24 @@ async def program_build(code: str, user: dict = Depends(require_user)) -> dict:
         except httpx.HTTPError as exc:
             raise HTTPException(502, f"SOV unavailable: {exc}") from exc
 
+    # idle is only HONEST when the specs read succeeded and returned zero active. If the read was degraded
+    # (malformed shape), it's idle_reason="unknown" and the client must render "couldn't read build state",
+    # NOT the reassuring "no active build" (CoEv2 honesty note #1 — the same broken-read-reads-as-clear class).
+    specs_ok = "specs" not in degraded
+    idle = len(specs) == 0
+    if not idle:
+        idle_reason = ""
+    elif specs_ok:
+        idle_reason = "genuine"      # read OK, genuinely no active build → honest "idle"
+    else:
+        idle_reason = "unknown"      # couldn't read → NOT a confirmed idle
     return {
         "program": code,
         "specs": specs,
         "feed": feed,
         "stalled": stalled,
-        "idle": len(specs) == 0,  # honest idle — no active build, not a fake "all clear"
+        "idle": idle,
+        "idle_reason": idle_reason,
+        "degraded": degraded,
         "source": "sov_forge_state",
     }

@@ -23,9 +23,21 @@ def test_phase_view_flags_failures_loudly():
         assert bm._phase_view({"seq": 1, "status": st})["failing"] is False
 
 
-def test_phase_view_unknown_status_not_failing_but_kept():
+def test_status_class_green_requires_explicit_success():
+    # failing → RED; explicit-benign → ok; ANYTHING ELSE → unknown (never green-by-default)
+    assert bm.status_class("push_failed") == "failing"
+    assert bm.status_class("needs_human") == "failing"
+    for ok in ["done", "merged", "passed", "running", "pending", "queued", "implementing", "waiting_approval"]:
+        assert bm.status_class(ok) == "ok"
+    # a NOVEL/unrecognized status is NOT quietly ok — it's "unknown" so the client renders it distinctly
+    assert bm.status_class("weird_new_state") == "unknown"
+    assert bm.status_class("cancelled") == "unknown"  # not a normal-flow success → not green
+
+
+def test_phase_view_unknown_status_is_distinct_not_green():
     v = bm._phase_view({"seq": 2, "status": "weird_new_state", "title": "x"})
-    assert v["status"] == "weird_new_state" and v["failing"] is False
+    assert v["status"] == "weird_new_state"
+    assert v["status_class"] == "unknown" and v["failing"] is False  # neither red nor green — distinct
 
 
 def test_feed_from_pulse_condenses_activity():
@@ -85,6 +97,43 @@ def test_build_honest_idle_when_no_active_specs(monkeypatch):
     _stub(monkeypatch, specs=[{"id": 30, "program_id": 1018, "status": "complete", "title": "done"}])
     out = _run(bm.program_build("FOPSCON", user={"dev": True}))
     assert out["idle"] is True and out["specs"] == []
+    assert out["idle_reason"] == "genuine" and out["degraded"] == []  # read OK, truly idle
+
+
+def test_build_malformed_specs_read_is_idle_unknown_not_genuine(monkeypatch):
+    # THE inversion (note #1): specs endpoint 200s with an UNRECOGNIZED shape → [] → must NOT read as a
+    # confirmed "no active build". idle_reason='unknown' + degraded=['specs'] so the client says
+    # "couldn't read build state", never the reassuring idle.
+    async def fake_get(client, path):
+        if path.startswith("/coding/programs/"):
+            return {"id": 1018}
+        if path.startswith("/coding/specs?program_id"):
+            return {"unexpected": "shape", "oops": True}  # 200 but no specs/data list → malformed
+        if path == "/coding/stalled-specs":
+            return {"stalled": []}
+        if path == "/pipeline/pulse":
+            return {}
+        return {}
+    monkeypatch.setattr(bm, "_sov_get", fake_get)
+    out = _run(bm.program_build("FOPSCON", user={"dev": True}))
+    assert out["idle"] is True
+    assert out["idle_reason"] == "unknown" and out["degraded"] == ["specs"]  # NOT a false all-quiet
+
+
+def test_build_phase_fetch_fail_marks_unavailable_not_benign(monkeypatch):
+    # note #3: a spec whose phase-read failed must not look like a benign empty (has_failure:false) — mark it
+    async def fake_get(client, path):
+        if path.startswith("/coding/programs/"):
+            return {"id": 1018}
+        if path.startswith("/coding/specs?program_id"):
+            return {"specs": [{"id": 60, "program_id": 1018, "status": "active", "title": "E"}]}
+        if "/phases" in path:
+            raise RuntimeError("phase read down")
+        return {"stalled": []} if "stalled" in path else {}
+    monkeypatch.setattr(bm, "_sov_get", fake_get)
+    out = _run(bm.program_build("FOPSCON", user={"dev": True}))
+    spec = out["specs"][0]
+    assert spec["phases_unavailable"] is True and spec["phases"] == []
 
 
 def test_build_stalled_scoped_to_program(monkeypatch):
