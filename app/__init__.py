@@ -11,20 +11,27 @@ def create_app() -> FastAPI:
     # App factory. /health is always wired; EVERY router under app/routers/ is auto-included so the
     # boot-smoke import exercises the whole app graph — this is what catches missing deps (jinja2 /
     # python-multipart) before deploy. Drop a new app/routers/<name>.py exposing `router` and it's live.
+    from pathlib import Path
+
+    from fastapi.responses import FileResponse
+    from fastapi.staticfiles import StaticFiles
+
     application = FastAPI(title=settings.app_name, version=settings.version)
     application.include_router(health_router)
 
-    @application.get("/")
-    def _root() -> dict:
-        # Default landing so the program root is never a bare 404. A scaffolded app defines only its
-        # real routes (+ /health), so GET / returned a naked FastAPI 404 that a human/evaluator hitting
-        # the root reads as "the app is down" (Dogfood Run 1 finding #4). Point them at the real API.
-        return {
-            "service": settings.app_name,
-            "version": settings.version,
-            "docs": "/docs",
-            "health": "/health",
-        }
+    _static = Path(__file__).parent / "static"
+
+    @application.get("/", include_in_schema=False)
+    def _root():
+        # Serve the SPA shell. The Portfolio home + Trust Strip render client-side from /api/portfolio.
+        # Falls back to a JSON pointer before the SPA ships (never a bare 404 root — Dogfood #4).
+        index = _static / "index.html"
+        if index.exists():
+            return FileResponse(index)
+        return {"service": settings.app_name, "version": settings.version, "health": "/health"}
+
+    if _static.exists():
+        application.mount("/static", StaticFiles(directory=str(_static)), name="static")
 
     import app.routers as routers_pkg
     for mod in pkgutil.iter_modules(routers_pkg.__path__):

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Foundation Operator Console</title>
+<style>
+  /* ── D1 tokens: one source of truth for colour, radius, type (<=9 sizes) ── */
+  :root{
+    color-scheme: light;
+    --bg:#f7f7f4; --surface:#fff; --line:#e3e3dd; --ink:#1f2933; --ink-soft:#5b6672; --ink-faint:#8a94a0;
+    --accent:#2f6f4f;
+    /* trust states (design §3) */
+    --two-key:#2f8f5b;   /* green  */
+    --one-key:#d69a2d;   /* amber  */
+    --vacuous:#e07b39;   /* orange */
+    --blocked:#c9483b;   /* red    */
+    --unknown:#b7bcc4;   /* grey — honest "no data", NEVER read as green */
+    /* radii scale */ --r-sm:6px; --r-md:10px; --r-lg:16px; --r-pill:999px;
+    /* type scale (9 steps) */ --t-11:.6875rem; --t-12:.75rem; --t-13:.8125rem; --t-14:.875rem;
+    --t-16:1rem; --t-18:1.125rem; --t-22:1.375rem; --t-28:1.75rem; --t-34:2.125rem;
+    font-family: system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--ink); background:var(--bg);
+  }
+  *{box-sizing:border-box}
+  body{margin:0; min-height:100vh; overflow-x:hidden}          /* D6: no horizontal body scroll */
+  a{color:inherit}
+  :focus-visible{outline:3px solid #2f6f4f66; outline-offset:2px; border-radius:var(--r-sm)}  /* D3 */
+  @media (prefers-reduced-motion: reduce){*{animation:none !important; transition:none !important}}  /* D3 */
+
+  header.top{position:sticky; top:0; z-index:5; background:var(--surface); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:.75rem; padding:.6rem clamp(.75rem,3vw,1.25rem)}
+  .brand{font-size:var(--t-16); font-weight:650; letter-spacing:-.01em; white-space:nowrap}
+  .brand small{color:var(--ink-faint); font-weight:500}
+  .spacer{flex:1}
+  .lens{display:inline-flex; border:1px solid var(--line); border-radius:var(--r-pill); overflow:hidden}
+  .lens button{font:inherit; font-size:var(--t-13); padding:.35rem .8rem; border:0; background:transparent;
+    color:var(--ink-soft); cursor:pointer}
+  .lens button[aria-pressed="true"]{background:var(--accent); color:#fff}
+  .needs{position:relative; display:inline-flex; align-items:center; gap:.4rem; font-size:var(--t-13);
+    color:var(--ink-soft); text-decoration:none; padding:.35rem .6rem; border-radius:var(--r-sm)}
+  .badge{min-width:1.4rem; height:1.4rem; padding:0 .35rem; border-radius:var(--r-pill); background:var(--blocked);
+    color:#fff; font-size:var(--t-12); font-weight:700; display:inline-grid; place-items:center}
+  .badge[data-count="0"]{background:var(--unknown)}
+
+  main{max-width:1100px; margin:0 auto; padding:clamp(1rem,3vw,1.75rem)}
+  h1{font-size:var(--t-22); margin:.2rem 0 .1rem; letter-spacing:-.02em}
+  .sub{color:var(--ink-soft); font-size:var(--t-13); margin:0 0 1rem}
+  .grid{display:grid; gap:.9rem; grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
+
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:1rem;
+    display:flex; flex-direction:column; gap:.6rem; text-align:left; font:inherit; color:inherit; cursor:pointer;
+    width:100%}
+  .card:hover{border-color:#cfd3cc}
+  .card .row{display:flex; align-items:baseline; gap:.5rem}
+  .code{font-size:var(--t-12); font-weight:700; letter-spacing:.04em; color:var(--ink-faint)}
+  .stage{margin-left:auto; font-size:var(--t-11); text-transform:uppercase; letter-spacing:.05em;
+    color:var(--ink-soft); border:1px solid var(--line); border-radius:var(--r-pill); padding:.1rem .5rem}
+  .idea{font-size:var(--t-14); line-height:1.35; color:var(--ink)}   /* one primary object per card (D2) */
+
+  /* ── Trust Strip (design §3) — mixbar + data-computed caption, never a static claim ── */
+  .trust{display:flex; flex-direction:column; gap:.35rem}
+  .mixbar{display:flex; height:8px; border-radius:var(--r-pill); overflow:hidden; background:var(--bg)}
+  .mixbar i{display:block; height:100%}
+  .mixbar i.two-key{background:var(--two-key)} .mixbar i.one-key{background:var(--one-key)}
+  .mixbar i.vacuous{background:var(--vacuous)} .mixbar i.blocked{background:var(--blocked)}
+  .mixbar i.unknown{background:var(--unknown)}
+  .mixbar.empty{background:repeating-linear-gradient(45deg,var(--bg),var(--bg) 5px,#eee 5px,#eee 10px)}
+  .cap{font-size:var(--t-12); color:var(--ink-soft)}
+  .cap.nodata{color:var(--ink-faint); font-style:italic}
+
+  .state{font-size:var(--t-13); color:var(--ink-soft); padding:2rem 0}
+  .err{color:var(--blocked)}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="brand">Foundation <small>Operator Console</small></span>
+  <span class="spacer"></span>
+  <div class="lens" role="group" aria-label="View lens">
+    <button id="lens-po" aria-pressed="true">PO</button>
+    <button id="lens-op" aria-pressed="false">Operator</button>
+  </div>
+  <a class="needs" href="#needs" aria-label="Needs You">Needs You <span class="badge" id="needs-badge" data-count="0">0</span></a>
+</header>
+
+<main>
+  <h1>Portfolio</h1>
+  <p class="sub" id="portfolio-sub">Loading programs…</p>
+  <div class="grid" id="grid" aria-live="polite"></div>
+  <div class="state" id="state" role="status"></div>
+</main>
+
+<script>
+const STATES = ["two-key","one-key","vacuous","blocked","unknown"];
+const KEYMAP = {two_key:"two-key", one_key:"one-key", vacuous:"vacuous", blocked:"blocked", unknown:"unknown"};
+
+// Trust Strip renderer — the ONE component (design §3). Renders a mixbar from counts + a DATA-COMPUTED
+// caption. Never emits a static universal claim; an empty manifest renders an honest hatched bar + the
+// server's honest caption ("no assurance data yet"). This is DoS #2 (static_unconditional_trust_claims=0).
+function trustStrip(strip){
+  const el = document.createElement("div"); el.className = "trust";
+  const counts = strip.counts || {}; const total = strip.total || 0;
+  const bar = document.createElement("div"); bar.className = "mixbar" + (total ? "" : " empty");
+  bar.setAttribute("role","img");
+  bar.setAttribute("aria-label", strip.caption || "no assurance data yet");
+  if(total){
+    for(const raw of ["two_key","one_key","vacuous","blocked","unknown"]){
+      const n = counts[raw] || 0; if(!n) continue;
+      const seg = document.createElement("i"); seg.className = KEYMAP[raw];
+      seg.style.flex = String(n); bar.appendChild(seg);
+    }
+  }
+  const cap = document.createElement("div");
+  cap.className = "cap" + (total ? "" : " nodata");
+  cap.textContent = strip.caption || "no assurance data yet";  // computed by the server, never asserted
+  el.append(bar, cap);
+  return el;
+}
+
+function card(p){
+  const c = document.createElement("button"); c.className = "card"; c.type = "button";
+  c.setAttribute("aria-label", `${p.name} — ${p.lifecycle_stage}`);
+  const row = document.createElement("div"); row.className = "row";
+  const code = document.createElement("span"); code.className = "code"; code.textContent = p.code || "";
+  const stage = document.createElement("span"); stage.className = "stage"; stage.textContent = p.lifecycle_stage || "";
+  row.append(code, stage);
+  const idea = document.createElement("div"); idea.className = "idea";
+  idea.textContent = p.idea_sentence || p.name || p.code || "—";
+  c.append(row, idea, trustStrip(p.trust_strip || {}));
+  c.addEventListener("click", () => { location.hash = "#program/" + (p.id || ""); });
+  return c;
+}
+
+async function load(){
+  const grid = document.getElementById("grid");
+  const state = document.getElementById("state");
+  try{
+    const res = await fetch("/api/portfolio", {headers:{"Accept":"application/json"}});
+    if(res.status === 401){ state.textContent = "Sign-in required."; return; }
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const d = await res.json();
+    document.getElementById("portfolio-sub").textContent =
+      `${d.count} program${d.count===1?"":"s"} · assurance: ${d.assurance_source}`;
+    grid.innerHTML = "";
+    (d.programs || []).forEach(p => grid.appendChild(card(p)));
+    state.textContent = d.count ? "" : "No programs yet.";
+  }catch(e){
+    state.className = "state err"; state.textContent = "Could not load portfolio: " + e.message;
+  }
+}
+
+// two-lens toggle — a render-density + default-landing parameter (design §1), persisted per session.
+function setLens(l){
+  document.getElementById("lens-po").setAttribute("aria-pressed", String(l==="po"));
+  document.getElementById("lens-op").setAttribute("aria-pressed", String(l==="op"));
+  document.body.dataset.lens = l; try{ localStorage.setItem("fops_lens", l); }catch(_){}
+}
+document.getElementById("lens-po").addEventListener("click", ()=>setLens("po"));
+document.getElementById("lens-op").addEventListener("click", ()=>setLens("op"));
+setLens((()=>{ try{ return localStorage.getItem("fops_lens") || "po"; }catch(_){ return "po"; }})());
+load();
+</script>
+</body>
+</html>
