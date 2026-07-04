@@ -1,15 +1,19 @@
 """Portfolio home BFF endpoint (design §8 Slice 0).
 
 Aggregates LIVE SOV program state into the FINALIZED-DESIGN card shape: every program as a card with
-its idea-sentence, lifecycle stage, health, and a Trust Strip. The Trust Strip is COMPUTED from the
-program's assurance data — and where that data is not yet wired (the governance/assurance endpoint is
-a known, specific gap), the strip is honestly 'unknown', never a fabricated green (the Trust Strip law).
+its idea-sentence, lifecycle stage, health, and a Trust Strip COMPUTED from the histogram of that
+program's ACCEPTED (delivered) increments' lock-states (app/assurance.py). Most programs are pre-Foundation
+with no accepted increments -> the strip honestly reads 'no assurance data yet'; only Foundation-run
+programs (e.g. KITH, FOPSCON) light up. Never a fabricated green (the Trust Strip law).
 """
 from __future__ import annotations
+
+import asyncio
 
 import httpx
 from fastapi import APIRouter, HTTPException
 
+from app.assurance import program_trust_items
 from app.config import settings
 from app.trust_strip import build_trust_strip
 
@@ -17,7 +21,7 @@ router = APIRouter(prefix="/api", tags=["portfolio"])
 
 
 def _lifecycle_stage(prog: dict) -> str:
-    """Coarse idea → vision → building → living stage derived from SOV program state."""
+    """Coarse idea -> vision -> building -> living stage derived from SOV program state."""
     if prog.get("is_topic"):
         return "topic"
     deploy = prog.get("deploy_type") or (prog.get("deploy_config") or {}).get("type")
@@ -42,29 +46,47 @@ async def _sov_get(client: httpx.AsyncClient, path: str):
     return r.json()
 
 
+def _as_list(raw, *keys) -> list:
+    if isinstance(raw, list):
+        return raw
+    if isinstance(raw, dict):
+        for k in keys:
+            if isinstance(raw.get(k), list):
+                return raw[k]
+    return []
+
+
 @router.get("/portfolio")
 async def portfolio() -> dict:
-    """Every deliverable program as a card with a data-computed Trust Strip.
-
-    Assurance-source honesty: the per-program assurance manifests are a known gap
-    (`/governance/summary` currently errors), so each card's Trust Strip resolves to 'no assurance
-    data yet' — the console shows the truth (unknown), never asserts green. When the assurance endpoint
-    lands, feed its per-feature items into ``build_trust_strip`` and the mixbar reflects real data with
-    zero change to this shape.
-    """
+    """Every deliverable program as a card with a Trust Strip computed from its accepted increments."""
     try:
         async with httpx.AsyncClient() as client:
             raw = await _sov_get(client, "/coding/programs")
-    except Exception as exc:  # noqa: BLE001
-        raise HTTPException(502, f"SOV /coding/programs unavailable: {exc}") from exc
+            progs = _as_list(raw, "programs", "data")
+            deliverable = [p for p in progs if not p.get("is_topic")]
 
-    progs = raw.get("programs") if isinstance(raw, dict) else raw
-    progs = progs or []
+            async def _items_for(p):
+                pid = p.get("id")
+                if pid is None:
+                    return []
+                try:
+                    # NB: ?program=<code> is IGNORED by the API (returns a global recent set) — only
+                    # ?program_id=<id> filters correctly. Wrong attribution would fabricate every card's
+                    # Trust Strip, exactly the dishonesty the strip must never do.
+                    specs = _as_list(await _sov_get(client, f"/coding/specs?program_id={pid}"), "specs", "data")
+                    specs = [s for s in specs if s.get("program_id") == pid]  # defensive: only this program's
+                    return program_trust_items(specs)
+                except Exception:  # noqa: BLE001 — a per-program fetch failure -> honest 'no data', not a crash
+                    return []
+
+            items_per = await asyncio.gather(*[_items_for(p) for p in deliverable])
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(502, f"SOV unavailable: {exc}") from exc
+
     cards = []
-    for p in progs:
-        if p.get("is_topic"):
-            continue  # topics are containers, not deliverable programs
-        assurance_items: list = []  # gap: per-program assurance not yet wired -> honest 'unknown'
+    all_items: list = []
+    for p, items in zip(deliverable, items_per):
+        all_items.extend(items)
         cards.append({
             "id": p.get("id"),
             "code": p.get("code"),
@@ -72,13 +94,12 @@ async def portfolio() -> dict:
             "idea_sentence": _idea_sentence(p),
             "lifecycle_stage": _lifecycle_stage(p),
             "health": {"clone_status": p.get("clone_status"), "active": p.get("active")},
-            "trust_strip": build_trust_strip(assurance_items),
+            "trust_strip": build_trust_strip(items),
             "repo_url": p.get("repo_url"),
         })
     return {
         "programs": cards,
         "count": len(cards),
-        "portfolio_trust_strip": build_trust_strip([]),
-        # honest gap disclosure — surfaced so the UI can show "assurance pending" not a false green
-        "assurance_source": "unavailable",
+        "portfolio_trust_strip": build_trust_strip(all_items),
+        "assurance_source": "sov_accept_records",  # histogram of accepted-increment lock-states
     }
