@@ -29,7 +29,7 @@
 
   header.top{position:sticky; top:0; z-index:5; background:var(--surface); border-bottom:1px solid var(--line);
     display:flex; align-items:center; gap:.75rem; padding:.6rem clamp(.75rem,3vw,1.25rem)}
-  .brand{font-size:var(--t-16); font-weight:650; letter-spacing:-.01em; white-space:nowrap}
+  .brand{font-size:var(--t-16); font-weight:650; letter-spacing:0; white-space:nowrap}
   .brand small{color:var(--ink-faint); font-weight:500}
   .spacer{flex:1}
   .lens{display:inline-flex; border:1px solid var(--line); border-radius:var(--r-pill); overflow:hidden}
@@ -38,12 +38,14 @@
   .lens button[aria-pressed="true"]{background:var(--accent); color:#fff}
   .needs{position:relative; display:inline-flex; align-items:center; gap:.4rem; font-size:var(--t-13);
     color:var(--ink-soft); text-decoration:none; padding:.35rem .6rem; border-radius:var(--r-sm)}
+  .new-idea{display:inline-flex; align-items:center; gap:.35rem; font-size:var(--t-13); font-weight:650;
+    color:#fff; background:var(--accent); text-decoration:none; padding:.4rem .75rem; border-radius:var(--r-pill)}
   .badge{min-width:1.4rem; height:1.4rem; padding:0 .35rem; border-radius:var(--r-pill); background:var(--blocked);
     color:#fff; font-size:var(--t-12); font-weight:700; display:inline-grid; place-items:center}
   .badge[data-count="0"]{background:var(--unknown)}
 
   main{max-width:1100px; margin:0 auto; padding:clamp(1rem,3vw,1.75rem)}
-  h1{font-size:var(--t-22); margin:.2rem 0 .1rem; letter-spacing:-.02em}
+  h1{font-size:var(--t-22); margin:.2rem 0 .1rem; letter-spacing:0}
   .sub{color:var(--ink-soft); font-size:var(--t-13); margin:0 0 1rem}
   .grid{display:grid; gap:.9rem; grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
 
@@ -70,6 +72,76 @@
 
   .state{font-size:var(--t-13); color:var(--ink-soft); padding:2rem 0}
   .err{color:var(--blocked)}
+  .toolbar{display:flex; align-items:flex-end; gap:1rem; margin:.2rem 0 1rem; flex-wrap:wrap}
+  .toolbar h1{margin:0}
+  .toolbar .sub{margin:.15rem 0 0}
+
+  /* Idea → Vision door: one primary object, shaped result second. */
+  .screen-new{max-width:780px}
+  .back{font-size:var(--t-13); color:var(--ink-soft); text-decoration:none; padding:.35rem .6rem;
+    border-radius:var(--r-sm)}
+  .door{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg);
+    padding:1.1rem; display:flex; flex-direction:column; gap:.8rem}
+  label.field{font-size:var(--t-13); font-weight:650; color:var(--ink-soft)}
+  .idea-input{width:100%; min-height:108px; resize:vertical; font:inherit; font-size:var(--t-16);
+    line-height:1.4; padding:.75rem; border:1px solid var(--line); border-radius:var(--r-md);
+    background:var(--bg); color:var(--ink)}
+  .idea-input::placeholder{color:var(--ink-faint)}
+  .row{display:flex; align-items:center; gap:.6rem; flex-wrap:wrap}
+  .btn{font:inherit; font-size:var(--t-14); font-weight:650; padding:.62rem 1rem; border-radius:var(--r-pill);
+    border:1px solid var(--accent); background:var(--accent); color:#fff; cursor:pointer}
+  .btn.ghost{background:transparent; color:var(--accent)}
+  .btn.danger{border-color:var(--blocked); background:var(--blocked)}
+  .btn[disabled]{opacity:.55; cursor:default}
+  .samples{display:flex; flex-direction:column; gap:.4rem; margin-top:.1rem}
+  .samples-h{font-size:var(--t-12); color:var(--ink-faint); text-transform:uppercase; letter-spacing:.05em}
+  .chip{text-align:left; font:inherit; font-size:var(--t-13); color:var(--ink); background:var(--bg);
+    border:1px solid var(--line); border-radius:var(--r-md); padding:.5rem .65rem; cursor:pointer}
+  .chip:hover{border-color:#cfd3cc}
+  .validation{min-height:1.2rem; font-size:var(--t-13); color:var(--blocked)}
+  .note{font-size:var(--t-12); color:var(--ink-faint)}
+  .panel{margin-top:1.2rem}
+  .shaping{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:1.1rem;
+    display:flex; align-items:center; gap:.7rem; color:var(--ink-soft); font-size:var(--t-14)}
+  .dot{width:9px; height:9px; border-radius:50%; background:var(--accent); animation:pulse 1s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:.3} 50%{opacity:1}}
+  .vision{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:1.15rem;
+    display:flex; flex-direction:column; gap:1rem}
+  .statement{font-size:var(--t-18); line-height:1.45; letter-spacing:0}
+  .epics{display:flex; flex-direction:column; gap:.75rem}
+  .epic{border-left:3px solid var(--line); padding-left:.75rem}
+  .epic h3{margin:0 0 .3rem; font-size:var(--t-14)}
+  .epic ul{margin:0; padding-left:1.1rem; color:var(--ink-soft); font-size:var(--t-13); line-height:1.5}
+  .grade{display:flex; align-items:center; gap:.8rem; padding:.85rem 1rem; border-radius:var(--r-md);
+    border:1px solid var(--line); background:var(--bg)}
+  .grade .num{font-size:var(--t-28); font-weight:750; letter-spacing:0; line-height:1}
+  .grade .meta{display:flex; flex-direction:column; gap:.15rem}
+  .grade .verdict{font-size:var(--t-14); font-weight:650}
+  .grade .measured{font-size:var(--t-12); color:var(--ink-soft)}
+  .grade.ready{border-color:var(--two-key); background:var(--surface)}
+  .grade.ready .num,.grade.ready .verdict{color:var(--two-key)}
+  .grade.notready{border-color:var(--vacuous); background:var(--surface)}
+  .grade.notready .num,.grade.notready .verdict{color:var(--vacuous)}
+  .findings{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:.55rem}
+  .finding{display:flex; gap:.55rem; font-size:var(--t-13); line-height:1.4}
+  .sev{flex:none; margin-top:.15rem; font-size:var(--t-11); font-weight:750; text-transform:uppercase;
+    letter-spacing:.03em; padding:.05rem .4rem; border-radius:var(--r-sm); color:#fff; background:var(--unknown)}
+  .sev.high,.sev.critical{background:var(--blocked)}
+  .sev.medium,.sev.med{background:var(--vacuous)}
+  .sev.low{background:var(--one-key)}
+  .findings-h{font-size:var(--t-13); font-weight:650; color:var(--ink-soft); margin:.2rem 0 .1rem}
+  .actions{display:flex; gap:.6rem; flex-wrap:wrap; align-items:center}
+  .confirm{border:1px solid var(--line); background:var(--bg); border-radius:var(--r-md); padding:.8rem;
+    display:flex; flex-direction:column; gap:.65rem}
+  .success{border:1px solid var(--two-key); background:var(--surface); border-radius:var(--r-md); padding:.85rem;
+    color:var(--ink); font-size:var(--t-14)}
+
+  @media (max-width: 430px){
+    main{padding:1rem}
+    header.top{gap:.45rem}
+    .brand small{display:none}
+    .new-idea{padding:.38rem .62rem}
+  }
 
   /* sign-in gate (DoS #4: unauth shows sign-in, NEVER the portfolio) */
   #signin{position:fixed; inset:0; z-index:20; background:var(--bg); display:none; place-items:center}
@@ -97,6 +169,7 @@
 <header class="top">
   <span class="brand">Foundation <small>Operator Console</small></span>
   <span class="spacer"></span>
+  <a class="new-idea" href="#/new" aria-label="New idea">＋ New idea</a>
   <div class="lens" role="group" aria-label="View lens">
     <button id="lens-po" aria-pressed="true">PO</button>
     <button id="lens-op" aria-pressed="false">Operator</button>
@@ -104,16 +177,21 @@
   <a class="needs" href="#needs" aria-label="Needs You">Needs You <span class="badge" id="needs-badge" data-count="0">0</span></a>
 </header>
 
-<main>
-  <h1>Portfolio</h1>
-  <p class="sub" id="portfolio-sub">Loading programs…</p>
-  <div class="grid" id="grid" aria-live="polite"></div>
-  <div class="state" id="state" role="status"></div>
-</main>
+<main id="app" aria-live="polite"></main>
 
 <script>
 const STATES = ["two-key","one-key","vacuous","blocked","unknown"];
 const KEYMAP = {two_key:"two-key", one_key:"one-key", vacuous:"vacuous", blocked:"blocked", unknown:"unknown"};
+const IDEA_KEY = "fops_last_idea";
+const CREATED_KEY = "fops_created_program";
+const STORY_CAP = 200;
+const DRAFT_TIMEOUT_MS = 240000;
+const samples = [
+  "A local-first CRM that reminds a solo founder who they have gone quiet on, and drafts the re-intro.",
+  "A budgeting app that splits a shared bill by who ate what.",
+  "A reading tracker that turns a stack of PDFs into a weekly progress arc."
+];
+let draftState = {idea:"", vision:null, inFlight:false, error:"", timedOut:false, startOpen:false, starting:false, created:null};
 
 // Trust Strip renderer — the ONE component (design §3). Renders a mixbar from counts + a DATA-COMPUTED
 // caption. Never emits a static universal claim; an empty manifest renders an honest hatched bar + the
@@ -156,9 +234,11 @@ function card(p){
 const TOKEN_KEY = "fops_idtoken";
 function getToken(){ try{ return localStorage.getItem(TOKEN_KEY) || ""; }catch(_){ return ""; } }
 function setToken(t){ try{ t ? localStorage.setItem(TOKEN_KEY,t) : localStorage.removeItem(TOKEN_KEY); }catch(_){}}
-function authFetch(url){
+function authFetch(url, options){
   const h = {"Accept":"application/json"}; const t = getToken(); if(t) h["Authorization"] = "Bearer " + t;
-  return fetch(url, {headers:h});
+  const opts = options || {};
+  const headers = Object.assign(h, opts.headers || {});
+  return fetch(url, Object.assign({}, opts, {headers}));
 }
 function showSignIn(msg){
   document.getElementById("signin").classList.add("show");
@@ -170,7 +250,34 @@ window.onGoogleCredential = function(resp){
   if(resp && resp.credential){ setToken(resp.credential); hideSignIn(); init(); }
 };
 
+function el(tag, attrs, ...children){
+  const node = document.createElement(tag);
+  for(const [k,v] of Object.entries(attrs || {})){
+    if(k === "class") node.className = v;
+    else if(k === "text") node.textContent = v;
+    else if(k === "html") node.innerHTML = v;
+    else if(k.startsWith("on") && typeof v === "function") node.addEventListener(k.slice(2), v);
+    else if(v !== false && v != null) node.setAttribute(k, v === true ? "" : String(v));
+  }
+  for(const child of children.flat()){
+    if(child == null) continue;
+    node.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
+  }
+  return node;
+}
+
+function app(){ return document.getElementById("app"); }
+function setStored(key, value){ try{ value ? sessionStorage.setItem(key, value) : sessionStorage.removeItem(key); }catch(_){} }
+function getStored(key){ try{ return sessionStorage.getItem(key) || ""; }catch(_){ return ""; } }
+
+function loadStoredCreated(){
+  const raw = getStored(CREATED_KEY);
+  if(!raw) return null;
+  try{ return JSON.parse(raw); }catch(_){ return null; }
+}
+
 async function load(){
+  renderPortfolioShell();
   const grid = document.getElementById("grid");
   const state = document.getElementById("state");
   try{
@@ -181,11 +288,268 @@ async function load(){
     document.getElementById("portfolio-sub").textContent =
       `${d.count} program${d.count===1?"":"s"} · assurance: ${d.assurance_source}`;
     grid.innerHTML = "";
+    const created = draftState.created || loadStoredCreated();
+    if(created) grid.appendChild(createdProgramCard(created));
     (d.programs || []).forEach(p => grid.appendChild(card(p)));
-    state.textContent = d.count ? "" : "No programs yet.";
+    state.textContent = d.count || created ? "" : "No programs yet.";
   }catch(e){
     state.className = "state err"; state.textContent = "Could not load portfolio: " + e.message;
   }
+}
+
+function renderPortfolioShell(){
+  document.body.dataset.route = "portfolio";
+  app().className = "";
+  app().innerHTML = "";
+  const title = el("div", {class:"toolbar"},
+    el("div", {}, el("h1", {text:"Portfolio"}), el("p", {class:"sub", id:"portfolio-sub", text:"Loading programs…"})),
+    el("span", {class:"spacer"}),
+    el("a", {class:"new-idea", href:"#/new", "aria-label":"New idea", text:"＋ New idea"})
+  );
+  app().append(title, el("div", {class:"grid", id:"grid"}), el("div", {class:"state", id:"state", role:"status"}));
+}
+
+function createdProgramCard(p){
+  const c = el("a", {class:"card", href:"#", "aria-label":"Created program"});
+  c.style.textDecoration = "none";
+  const row = el("div", {class:"row"},
+    el("span", {class:"code", text:p.code || "NEW"}),
+    el("span", {class:"stage", text:"created"})
+  );
+  const idea = el("div", {class:"idea", text:"Created program"});
+  const grade = p.grade == null ? "" : `Re-graded: ${formatGrade(p.grade)}`;
+  c.append(row, idea, el("div", {class:"cap", text:grade || "Program created"}));
+  return c;
+}
+
+function renderNew(){
+  document.body.dataset.route = "new";
+  app().className = "screen-new";
+  app().innerHTML = "";
+  draftState.created = draftState.created || loadStoredCreated();
+  const inputId = "idea-input";
+  const form = el("form", {class:"door", id:"idea-form", "data-primary-object":"idea-input", onsubmit:onDraftSubmit},
+    el("label", {class:"field", for:inputId, text:"Your idea"}),
+    el("textarea", {
+      id:inputId, class:"idea-input", name:"idea", rows:"5", required:true, maxlength:"20000",
+      placeholder:"e.g. A local-first habit tracker that quietly shows the streak you have earned."
+    }),
+    el("div", {class:"row"},
+      el("button", {class:"btn", id:"shape-submit", type:"submit", disabled:draftState.inFlight, text:draftState.inFlight ? "Shaping…" : "Shape it into a Vision"}),
+      el("span", {class:"note", text:"~2–4 min · the council drafts and grades it live"})
+    ),
+    el("div", {class:"validation", id:"idea-validation", role:"alert", text:draftState.error && !draftState.timedOut ? draftState.error : ""}),
+    el("div", {class:"samples"},
+      el("span", {class:"samples-h", text:"or start from a sample"}),
+      samples.map(sample => el("button", {class:"chip", type:"button", "data-sample-idea":sample, onclick:onSampleClick, text:sample}))
+    )
+  );
+  app().append(
+    el("a", {class:"back", href:"#/", text:"← Portfolio"}),
+    el("h1", {text:"Turn an idea into a program"}),
+    el("p", {class:"sub", text:"Type a sentence. The Foundation shapes it into a Vision, then shows the gate result without changing the council's verdict."}),
+    form,
+    el("section", {class:"panel", id:"vision-panel"})
+  );
+  const idea = document.getElementById(inputId);
+  idea.value = draftState.idea || getStored(IDEA_KEY);
+  renderVisionPanel();
+}
+
+function onSampleClick(ev){
+  const sample = ev.currentTarget.getAttribute("data-sample-idea") || "";
+  const input = document.getElementById("idea-input");
+  input.value = sample;
+  draftState.idea = sample;
+  document.getElementById("idea-validation").textContent = "";
+  input.focus();
+}
+
+async function onDraftSubmit(ev){
+  ev.preventDefault();
+  const input = document.getElementById("idea-input");
+  const idea = (input.value || "").trim();
+  if(!idea){
+    draftState.error = "Enter an idea before shaping it.";
+    draftState.timedOut = false;
+    renderNew();
+    document.getElementById("idea-input").focus();
+    return;
+  }
+  await submitDraft(idea);
+}
+
+async function submitDraft(idea){
+  draftState = Object.assign(draftState, {idea, vision:null, inFlight:true, error:"", timedOut:false, startOpen:false, created:null});
+  setStored(IDEA_KEY, idea);
+  renderNew();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), DRAFT_TIMEOUT_MS);
+  try{
+    const res = await authFetch("/api/vision/draft", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({idea}),
+      signal:controller.signal
+    });
+    if(res.status === 401 || res.status === 403){ setToken(""); showSignIn(res.status===403?"That account is not authorized.":""); return; }
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    draftState.vision = await res.json();
+    draftState.error = "";
+  }catch(e){
+    draftState.error = e.name === "AbortError" ? "The shaping request timed out. Retry when you are ready." : "Could not shape this idea: " + e.message;
+    draftState.timedOut = e.name === "AbortError";
+  }finally{
+    clearTimeout(timer);
+    draftState.inFlight = false;
+    renderNew();
+  }
+}
+
+function renderVisionPanel(){
+  const panel = document.getElementById("vision-panel");
+  if(!panel) return;
+  panel.innerHTML = "";
+  if(draftState.inFlight){
+    panel.appendChild(el("div", {class:"shaping", role:"status"},
+      el("span", {class:"dot", "aria-hidden":"true"}), "Shaping your idea into a Vision, then grading it…"
+    ));
+    return;
+  }
+  if(draftState.timedOut){
+    panel.appendChild(el("div", {class:"vision"},
+      el("div", {class:"err", role:"alert", text:draftState.error}),
+      el("div", {class:"actions"}, el("button", {class:"btn", type:"button", onclick:()=>submitDraft(draftState.idea), text:"Retry shaping"}))
+    ));
+    return;
+  }
+  if(draftState.error){
+    panel.appendChild(el("div", {class:"state err", role:"alert", text:draftState.error}));
+    return;
+  }
+  if(draftState.vision) panel.appendChild(renderVision(draftState.vision));
+}
+
+function validVision(v){
+  return v && typeof v === "object" && typeof v.statement === "string" && Array.isArray(v.epics) &&
+    v.gate && typeof v.gate === "object" && typeof v.gate.ready === "boolean";
+}
+
+function renderVision(v){
+  if(!validVision(v)){
+    return el("div", {class:"vision", role:"status"},
+      el("div", {class:"err", text:"The draft response was missing required Vision fields."})
+    );
+  }
+  const container = el("div", {class:"vision"});
+  container.appendChild(el("div", {class:"statement", text:v.statement}));
+  const epics = el("div", {class:"epics"});
+  let renderedStories = 0;
+  let truncated = false;
+  (v.epics || []).forEach((epic, i) => {
+    const title = typeof epic === "string" ? epic : (epic.title || epic.name || `Epic ${i + 1}`);
+    const stories = Array.isArray(epic.stories) ? epic.stories : [];
+    const ul = el("ul", {});
+    stories.forEach(story => {
+      if(renderedStories >= STORY_CAP){ truncated = true; return; }
+      renderedStories += 1;
+      ul.appendChild(el("li", {text:storyText(story)}));
+    });
+    epics.appendChild(el("div", {class:"epic"}, el("h3", {text:title}), ul));
+  });
+  if(truncated){
+    console.warn(`Vision response exceeded ${STORY_CAP} stories; rendering was truncated.`);
+    epics.appendChild(el("div", {class:"note", text:`Showing the first ${STORY_CAP} stories from the drafted Vision.`}));
+  }
+  container.appendChild(epics);
+  container.appendChild(renderGrade(v));
+  if(v.gate.ready === true) container.appendChild(renderStartFlow(v));
+  return container;
+}
+
+function storyText(story){
+  if(story && typeof story === "object") return String(story.title || story.name || story.issue || "");
+  return String(story || "");
+}
+
+function formatGrade(g){
+  return typeof g === "number" && Number.isFinite(g) ? g.toFixed(2) : String(g ?? "—");
+}
+
+function renderGrade(v){
+  const ready = v.gate.ready === true;
+  const grade = formatGrade(v.grade);
+  const box = el("div", {class:"grade " + (ready ? "ready" : "notready"), role:"status"},
+    el("span", {class:"num", text:grade}),
+    el("span", {class:"meta"},
+      el("span", {class:"verdict", text:ready ? "Ready to start" : "Not ready yet"}),
+      el("span", {class:"measured", text:"Computed by the vision-gate"})
+    )
+  );
+  if(!ready){
+    const findings = el("ul", {class:"findings"});
+    (v.gate.findings || []).forEach(f => {
+      findings.appendChild(el("li", {class:"finding"},
+        el("span", {class:"sev " + String(f.severity || "info").toLowerCase(), text:String(f.severity || "info")}),
+        el("span", {text:String(f.issue || "")})
+      ));
+    });
+    return el("div", {}, box, el("p", {class:"findings-h", text:"What the gate found missing"}), findings);
+  }
+  return box;
+}
+
+function renderStartFlow(v){
+  const wrap = el("div", {class:"actions"});
+  wrap.appendChild(el("button", {class:"btn", type:"button", id:"start-program", onclick:()=>{ draftState.startOpen = true; renderNew(); }, text:"Start this program"}));
+  if(!draftState.startOpen) return wrap;
+  const confirm = el("div", {class:"confirm", role:"dialog", "aria-label":"Confirm program start"},
+    el("div", {class:"note", text:"Confirm program creation from this drafted Vision."}),
+    el("div", {class:"actions"},
+      el("button", {class:"btn", type:"button", id:"confirm-start", disabled:draftState.starting, onclick:()=>startProgram(v), text:draftState.starting ? "Starting…" : "Confirm start"}),
+      el("button", {class:"btn ghost", type:"button", disabled:draftState.starting, onclick:()=>{ draftState.startOpen = false; renderNew(); }, text:"Cancel"})
+    )
+  );
+  wrap.appendChild(confirm);
+  if(draftState.created){
+    wrap.appendChild(el("div", {class:"success", role:"status"},
+      el("a", {href:"#/", text:`Program ${draftState.created.code || draftState.created.program_id || ""} created`}),
+      ` · Re-graded ${formatGrade(draftState.created.grade)}`
+    ));
+  }
+  return wrap;
+}
+
+async function startProgram(vision){
+  if(draftState.starting) return;
+  draftState.starting = true;
+  renderNew();
+  const body = {name:programName(vision, draftState.idea), idea:draftState.idea, vision};
+  try{
+    const res = await authFetch("/api/programs", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(body)
+    });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    draftState.created = await res.json();
+    setStored(CREATED_KEY, JSON.stringify(draftState.created));
+  }catch(e){
+    draftState.error = "Could not start this program: " + e.message;
+  }finally{
+    draftState.starting = false;
+    renderNew();
+  }
+}
+
+function programName(vision, idea){
+  const seed = (vision.statement || idea || "New Program").split(/[.!?]/)[0].trim();
+  return seed.slice(0, 80) || "New Program";
+}
+
+function route(){
+  if(location.hash === "#/new" || location.pathname === "/new") renderNew();
+  else load();
 }
 
 // two-lens toggle — a render-density + default-landing parameter (design §1), persisted per session.
@@ -198,8 +562,13 @@ document.getElementById("lens-po").addEventListener("click", ()=>setLens("po"));
 document.getElementById("lens-op").addEventListener("click", ()=>setLens("op"));
 setLens((()=>{ try{ return localStorage.getItem("fops_lens") || "po"; }catch(_){ return "po"; }})());
 
-// init: try to load the portfolio; a 401/403 flips to the sign-in screen (load() handles it).
-function init(){ load(); }
+// init: route first; API 401/403 flips to the sign-in screen (load()/submit handlers handle it).
+function init(){ route(); }
+window.addEventListener("hashchange", route);
+window.FOPSIdeaVision = {
+  samples, validVision, renderVision, renderGrade, storyText, formatGrade, programName,
+  getState:()=>draftState, setState:s=>{ draftState = Object.assign(draftState, s || {}); }
+};
 init();
 </script>
 </body>
