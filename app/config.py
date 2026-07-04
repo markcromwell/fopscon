@@ -15,6 +15,14 @@ class Settings(BaseSettings):
     # CoEv2: judgment — vision/draft, grade, assurance, gate-integrity, calibration.
     council_base_url: str = "http://council-v2-api:3000"
     council_api_key: str = ""
+    # /v1/vision/draft + /v1/grade REQUIRE a program_id, but the Idea→Vision screen shapes an idea
+    # BEFORE a program exists. We draft/grade under a persistent SANDBOX program so stray idea-grades
+    # never pollute a real program's grade history; "Start this program" (AC4) creates the real program
+    # and re-grades under its own id. Overridable via VISION_SANDBOX_PROGRAM_ID (CoEv2 to confirm the id).
+    vision_sandbox_program_id: int = 1019  # IDEASANDBOX — a persistent, junk-tolerant grade sandbox (never builds)
+    council_max_cost_usd: float = 1.0      # per draft/grade call; the council caps at 30
+    council_poll_timeout_s: float = 600.0  # draft+grade are async (2.5–5 min each) — the "shaping…" wait
+    council_poll_interval_s: float = 5.0
 
     # ── Google sign-in (id_token pattern; NO client secret) ──
     google_client_id: str = "914839164404-675qnmh7juchfrsh89674dat47qelbg7.apps.googleusercontent.com"
