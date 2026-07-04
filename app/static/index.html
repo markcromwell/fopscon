@@ -173,6 +173,74 @@
   .empty-state .big{font-size:var(--t-18); font-weight:700; color:var(--ink)}
   .empty-state .small{font-size:var(--t-13); color:var(--ink-soft); line-height:1.4}
 
+  /* Build Monitor: operator-lens live forge state, one primary spec/phase tree. */
+  .screen-build{max-width:920px}
+  .build-shell{display:flex; flex-direction:column; gap:1rem; min-width:0}
+  .build-layout{display:grid; grid-template-columns:1fr; gap:1rem; min-width:0}
+  .builds{display:flex; flex-direction:column; gap:.85rem; min-width:0; color:var(--ink)}
+  .spec{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:.95rem; min-width:0}
+  .spec.has-failure{border-color:#e7b7ae}
+  .spec.has-unknown{border-color:#dec991}
+  .spec-head{display:flex; align-items:center; gap:.5rem; flex-wrap:wrap}
+  .spec-id{font-size:var(--t-12); font-weight:750; color:var(--ink); background:var(--bg);
+    border:1px solid var(--line); border-radius:var(--r-sm); padding:.15rem .45rem; max-width:100%; overflow-wrap:anywhere}
+  .spec-title{font-size:var(--t-16); font-weight:650; min-width:0; overflow-wrap:anywhere}
+  .spec-status{margin-left:auto; font-size:var(--t-11); text-transform:uppercase; letter-spacing:.05em; font-weight:750;
+    color:var(--ink-soft); background:var(--bg); border:1px solid var(--line); border-radius:var(--r-pill); padding:.14rem .5rem}
+  .spec-badge{font-size:var(--t-11); text-transform:uppercase; letter-spacing:.04em; font-weight:750;
+    padding:.14rem .48rem; border-radius:var(--r-sm); border:1px solid var(--line); color:var(--ink-soft); background:var(--bg)}
+  .spec-badge.failure{color:#fff; background:var(--blocked); border-color:var(--blocked)}
+  .spec-badge.unknown{color:var(--ink); background:#fff7df; border-color:#ead18a}
+  .phases-scroll{margin-top:.7rem; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch}
+  .phases{display:flex; flex-direction:column; gap:.4rem; min-width:360px}
+  .phase{display:flex; align-items:center; gap:.55rem; padding:.52rem .6rem; border:1px solid var(--line);
+    border-radius:var(--r-md); background:var(--bg); min-height:44px}
+  .phase.failing{border-color:var(--blocked); background:#fff1ee}
+  .phase.unknown{border-color:#ead18a; background:#fff9e8}
+  .seq{flex:none; width:1.45rem; height:1.45rem; border-radius:var(--r-pill); display:grid; place-items:center;
+    font-size:var(--t-11); font-weight:750; color:var(--ink-soft); background:var(--surface); border:1px solid var(--line)}
+  .phase-main{display:flex; flex-direction:column; gap:.05rem; min-width:9rem}
+  .phase-title{font-size:var(--t-13); font-weight:650; color:var(--ink); white-space:nowrap}
+  .phase-meta{font-size:var(--t-12); color:var(--ink-faint); white-space:nowrap}
+  .gate-chip{margin-left:auto; display:inline-flex; align-items:center; gap:.3rem; flex:none; font-size:var(--t-11);
+    font-weight:750; border-radius:var(--r-sm); border:1px solid var(--line); padding:.13rem .45rem; color:var(--ink-soft);
+    background:var(--surface); white-space:nowrap}
+  .gate-chip::before{content:""; width:7px; height:7px; border-radius:2px; background:var(--unknown)}
+  .gate-chip.failing{color:var(--blocked); border-color:#e7b7ae; background:#fff1ee}
+  .gate-chip.failing::before{background:var(--blocked)}
+  .gate-chip.ok{color:var(--ink-soft); border-color:var(--line); background:var(--surface)}
+  .gate-chip.ok::before{background:var(--accent)}
+  .gate-chip.unknown{color:var(--ink); border-color:var(--one-key); background:#fff9e8}
+  .gate-chip.unknown::before{background:var(--one-key)}
+  .phase-unavailable{margin-top:.7rem; color:var(--ink); background:#fff9e8; border:1px solid #ead18a;
+    border-radius:var(--r-md); padding:.55rem .65rem; font-size:var(--t-13); font-weight:650}
+  .feed{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:.85rem; align-self:start}
+  .feed h2,.stall h2{font-size:var(--t-12); text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); margin:0 0 .6rem}
+  .feed-list,.stall-list{display:flex; flex-direction:column; gap:.45rem}
+  .ev{display:flex; gap:.5rem; font-size:var(--t-12); line-height:1.4; border-top:1px solid var(--line); padding:.35rem 0 0}
+  .ev:first-child{border-top:none; padding-top:0}
+  .ev .ts{color:var(--ink-faint); flex:none; font-variant-numeric:tabular-nums}
+  .ev .who{font-weight:750; color:var(--accent)}
+  .stall{background:var(--surface); border:1px solid #e7b7ae; border-radius:var(--r-lg); padding:.9rem}
+  .stall-item{display:flex; flex-direction:column; gap:.25rem; border-top:1px solid var(--line); padding-top:.55rem}
+  .stall-item:first-child{border-top:none; padding-top:0}
+  .stall-title{font-size:var(--t-14); font-weight:750; color:var(--ink); overflow-wrap:anywhere}
+  .stall-meta{font-size:var(--t-12); color:var(--ink-faint)}
+  .stall-blocker{font-size:var(--t-13); color:var(--blocked); font-weight:650; overflow-wrap:anywhere}
+  .stall-action{font-size:var(--t-13); color:var(--ink-soft); overflow-wrap:anywhere}
+  .idle{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg);
+    padding:1.5rem 1rem; text-align:center; display:flex; flex-direction:column; gap:.35rem}
+  .idle .big{font-size:var(--t-18); font-weight:750; color:var(--ink)}
+  .idle .small{font-size:var(--t-13); color:var(--ink-soft); line-height:1.4}
+  .build-error{background:#fff1ee; border:1px solid #e7b7ae; color:var(--blocked); border-radius:var(--r-lg);
+    padding:.9rem; font-size:var(--t-14)}
+  .build-empty{font-size:var(--t-13); color:var(--ink-faint); border:1px dashed var(--line); border-radius:var(--r-md);
+    padding:.75rem; background:var(--surface)}
+
+  @media (min-width: 760px){
+    .build-layout{grid-template-columns:minmax(0,1fr) 270px}
+  }
+
   @media (max-width: 430px){
     main{padding:1rem}
     header.top{gap:.45rem}
@@ -180,6 +248,7 @@
     .lens{display:none}
     .needs{padding:.35rem .45rem}
     .new-idea{padding:.38rem .62rem}
+    .phase-main{min-width:8rem}
   }
 
   /* sign-in gate (DoS #4: unauth shows sign-in, NEVER the portfolio) */
@@ -225,6 +294,8 @@ const IDEA_KEY = "fops_last_idea";
 const CREATED_KEY = "fops_created_program";
 const STORY_CAP = 200;
 const DRAFT_TIMEOUT_MS = 240000;
+const BUILD_POLL_MS = 10000;
+const BUILD_FEED_CAP = 30;
 const samples = [
   "A local-first CRM that reminds a solo founder who they have gone quiet on, and drafts the re-intro.",
   "A budgeting app that splits a shared bill by who ate what.",
@@ -232,6 +303,7 @@ const samples = [
 ];
 let draftState = {idea:"", vision:null, inFlight:false, error:"", timedOut:false, startOpen:false, starting:false, created:null};
 let needsState = {items:[], count:0, source:"", degraded:[], loading:false, error:"", openId:"", decision:"", resolving:false, note:""};
+let buildState = {program:"", data:null, loading:false, error:"", poll:null, controller:null, seq:0};
 
 // Trust Strip renderer — the ONE component (design §3). Renders a mixbar from counts + a DATA-COMPUTED
 // caption. Never emits a static universal claim; an empty manifest renders an honest hatched bar + the
@@ -266,7 +338,7 @@ function card(p){
   const idea = document.createElement("div"); idea.className = "idea";
   idea.textContent = p.idea_sentence || p.name || p.code || "—";
   c.append(row, idea, trustStrip(p.trust_strip || {}));
-  c.addEventListener("click", () => { location.hash = "#program/" + (p.id || ""); });
+  c.addEventListener("click", () => { location.hash = "#program/" + encodeURIComponent(p.code || p.id || "") + "/build"; });
   return c;
 }
 
@@ -331,7 +403,7 @@ async function load(){
   const state = document.getElementById("state");
   try{
     const res = await authFetch("/api/portfolio");
-    if(res.status === 401 || res.status === 403){ setToken(""); showSignIn(res.status===403?"That account is not authorized.":""); return; }
+    if(res.status === 401 || res.status === 403){ stopBuildPolling(); setToken(""); showSignIn(res.status===403?"That account is not authorized.":""); return; }
     if(!res.ok) throw new Error("HTTP " + res.status);
     const d = await res.json();
     document.getElementById("portfolio-sub").textContent =
@@ -365,7 +437,7 @@ async function renderNeeds(){
   renderNeedsShell();
   try{
     const res = await authFetch("/api/needs-you");
-    if(res.status === 401 || res.status === 403){ setToken(""); showSignIn(res.status===403?"That account is not authorized.":""); return; }
+    if(res.status === 401 || res.status === 403){ stopBuildPolling(); setToken(""); showSignIn(res.status===403?"That account is not authorized.":""); return; }
     if(!res.ok) throw new Error("HTTP " + res.status);
     applyNeedsData(await res.json());
   }catch(e){
@@ -577,10 +649,11 @@ function ageFrom(value){
 }
 
 function createdProgramCard(p){
-  const c = el("a", {class:"card", href:"#", "aria-label":"Created program"});
+  const code = p.code || p.program_id || "";
+  const c = el("a", {class:"card", href:code ? "#program/" + encodeURIComponent(code) + "/build" : "#/", "aria-label":"Created program"});
   c.style.textDecoration = "none";
   const row = el("div", {class:"row"},
-    el("span", {class:"code", text:p.code || "NEW"}),
+    el("span", {class:"code", text:code || "NEW"}),
     el("span", {class:"stage", text:"created"})
   );
   const idea = el("div", {class:"idea", text:"Created program"});
@@ -814,7 +887,221 @@ function programName(vision, idea){
   return seed.slice(0, 80) || "New Program";
 }
 
+function buildRouteCode(){
+  const hashMatch = location.hash.match(/^#\/?program\/([^/]+)\/build$/);
+  const pathMatch = location.pathname.match(/^\/program\/([^/]+)\/build$/);
+  const raw = hashMatch ? hashMatch[1] : (pathMatch ? pathMatch[1] : "");
+  return raw ? decodeURIComponent(raw) : "";
+}
+
+function stopBuildPolling(){
+  if(buildState.poll) clearInterval(buildState.poll);
+  if(buildState.controller) buildState.controller.abort();
+  buildState.poll = null;
+  buildState.controller = null;
+  buildState.seq += 1;
+}
+
+function renderBuild(code){
+  if(buildState.program === code && buildState.poll) return;
+  stopBuildPolling();
+  buildState = {program:code, data:null, loading:true, error:"", poll:null, controller:null, seq:buildState.seq};
+  document.body.dataset.route = "build";
+  app().className = "screen-build";
+  renderBuildShell();
+  fetchBuild(code);
+  buildState.poll = setInterval(() => fetchBuild(code), BUILD_POLL_MS);
+}
+
+async function fetchBuild(code){
+  if(buildState.controller) buildState.controller.abort();
+  const controller = new AbortController();
+  const seq = buildState.seq + 1;
+  buildState.seq = seq;
+  buildState.controller = controller;
+  buildState.loading = !buildState.data;
+  buildState.error = "";
+  renderBuildShell();
+  try{
+    const res = await authFetch(`/api/programs/${encodeURIComponent(code)}/build`, {signal:controller.signal});
+    if(res.status === 401 || res.status === 403){ stopBuildPolling(); setToken(""); showSignIn(res.status===403?"That account is not authorized.":""); return; }
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    if(seq !== buildState.seq || buildState.program !== code) return;
+    buildState.data = data && typeof data === "object" ? data : {};
+    buildState.error = "";
+  }catch(e){
+    if(e.name === "AbortError") return;
+    if(seq !== buildState.seq || buildState.program !== code) return;
+    buildState.error = "Could not load build state: " + e.message;
+  }finally{
+    if(seq === buildState.seq && buildState.program === code){
+      buildState.loading = false;
+      if(buildState.controller === controller) buildState.controller = null;
+      renderBuildShell();
+    }
+  }
+}
+
+function renderBuildShell(){
+  app().innerHTML = "";
+  const code = buildState.program || "Program";
+  const data = buildState.data || {};
+  const shell = el("section", {class:"build-shell", "data-primary-object":"build-tree"},
+    el("a", {class:"back", href:"#/", text:"← Portfolio"}),
+    el("div", {class:"toolbar"},
+      el("div", {},
+        el("h1", {text:"Build Monitor"}),
+        el("p", {class:"sub", text:`${data.program || code} live forge state from the Build BFF.`})
+      )
+    )
+  );
+  if(buildState.error){
+    shell.appendChild(el("div", {class:"build-error", role:"alert", text:buildState.error}));
+    if(!buildState.data){
+      app().appendChild(shell);
+      return;
+    }
+  }
+  if(buildState.loading && !buildState.data){
+    shell.appendChild(el("div", {class:"state", role:"status", text:"Loading build state…"}));
+    app().appendChild(shell);
+    return;
+  }
+  if(isBuildDegraded(data)){
+    shell.append(renderBuildDegraded(), renderBuildFeed(data.feed || []));
+    app().appendChild(shell);
+    return;
+  }
+  const layout = el("div", {class:"build-layout"});
+  const builds = el("div", {class:"builds", id:"build-tree"});
+  const stalled = Array.isArray(data.stalled) ? data.stalled : [];
+  if(stalled.length) builds.appendChild(renderStalls(stalled));
+  const specs = Array.isArray(data.specs) ? data.specs : [];
+  if(data.idle === true && data.idle_reason === "genuine" && !stalled.length){
+    builds.appendChild(renderBuildIdle());
+  }else if(specs.length){
+    specs.forEach(spec => builds.appendChild(renderBuildSpec(spec)));
+  }else if(!buildState.error){
+    builds.appendChild(el("div", {class:"build-empty", role:"status", text:"No active specs were returned for this build read."}));
+  }
+  layout.append(builds, renderBuildFeed(data.feed || []));
+  shell.appendChild(layout);
+  app().appendChild(shell);
+}
+
+function isBuildDegraded(data){
+  const degraded = Array.isArray(data.degraded) ? data.degraded : [];
+  return data.idle === true && data.idle_reason !== "genuine" || data.idle_reason === "unknown" || degraded.includes("specs");
+}
+
+function renderBuildDegraded(){
+  return el("div", {class:"build-error", role:"alert"},
+    el("strong", {text:"Couldn't read build state"}),
+    el("div", {text:"The specs read was unavailable or malformed, so this is not shown as idle."})
+  );
+}
+
+function renderBuildIdle(){
+  return el("div", {class:"idle", role:"status"},
+    el("div", {class:"big", text:"Idle — no active build"}),
+    el("div", {class:"small", text:"This program has no specs in flight right now."})
+  );
+}
+
+function renderBuildSpec(spec){
+  const classes = ["spec"];
+  if(spec.has_failure) classes.push("has-failure");
+  if(spec.has_unknown) classes.push("has-unknown");
+  const box = el("article", {class:classes.join(" "), "data-spec-id":spec.id || ""});
+  const head = el("div", {class:"spec-head"},
+    el("span", {class:"spec-id", text:String(spec.id ?? "spec")}),
+    el("span", {class:"spec-title", text:spec.title || "Untitled spec"}),
+    el("span", {class:"spec-status", text:spec.status || "status unknown"})
+  );
+  if(spec.has_failure) head.appendChild(el("span", {class:"spec-badge failure", text:"failure"}));
+  if(spec.has_unknown) head.appendChild(el("span", {class:"spec-badge unknown", text:"unknown"}));
+  box.appendChild(head);
+  if(spec.phases_unavailable === true){
+    box.appendChild(el("div", {class:"phase-unavailable", role:"status", text:"phases unavailable"}));
+    return box;
+  }
+  const scroll = el("div", {class:"phases-scroll"});
+  const phases = el("div", {class:"phases"});
+  (Array.isArray(spec.phases) ? spec.phases : []).forEach(phase => phases.appendChild(renderBuildPhase(phase)));
+  if(!phases.children.length) phases.appendChild(el("div", {class:"build-empty", text:"No phase rows returned."}));
+  scroll.appendChild(phases);
+  box.appendChild(scroll);
+  return box;
+}
+
+function renderBuildPhase(phase){
+  const cls = phaseClass(phase);
+  return el("div", {class:"phase " + cls},
+    el("span", {class:"seq", text:String(phase.seq ?? "–")}),
+    el("span", {class:"phase-main"},
+      el("span", {class:"phase-title", text:phase.title || phase.type || "phase"}),
+      el("span", {class:"phase-meta", text:[phase.type, phase.provider].filter(Boolean).join(" · ") || "provider unknown"})
+    ),
+    el("span", {class:"gate-chip " + cls, text:phase.status || "status unknown"})
+  );
+}
+
+function phaseClass(phase){
+  if(phase.failing === true || phase.status_class === "failing") return "failing";
+  if(phase.status_class === "unknown") return "unknown";
+  return "ok";
+}
+
+function renderBuildFeed(feed){
+  const aside = el("aside", {class:"feed", "aria-label":"Loop activity"},
+    el("h2", {text:"Loop activity"})
+  );
+  const list = el("div", {class:"feed-list"});
+  const rows = (Array.isArray(feed) ? feed : []).slice(0, BUILD_FEED_CAP);
+  if(!rows.length){
+    list.appendChild(el("div", {class:"build-empty", text:"No feed events returned."}));
+  }else{
+    rows.forEach(item => list.appendChild(el("div", {class:"ev"},
+      el("span", {class:"ts", text:formatBuildTime(item.ts)}),
+      el("span", {},
+        el("span", {class:"who", text:item.actor || "loop"}),
+        " ",
+        item.spec_id ? `#${item.spec_id} ` : "",
+        item.event || ""
+      )
+    )));
+  }
+  aside.appendChild(list);
+  return aside;
+}
+
+function renderStalls(stalled){
+  const box = el("section", {class:"stall", "aria-label":"Stalled builds"},
+    el("h2", {text:"Stalled"})
+  );
+  const list = el("div", {class:"stall-list"});
+  stalled.forEach(item => list.appendChild(el("div", {class:"stall-item"},
+    el("div", {class:"stall-title", text:item.title || `Spec ${item.spec_id || ""}`.trim()}),
+    el("div", {class:"stall-meta", text:[item.stall_class, item.since].filter(Boolean).join(" · ")}),
+    el("div", {class:"stall-blocker", text:"Blocked: " + (item.blocker || "blocker unknown")}),
+    el("div", {class:"stall-action", text:"Recommended: " + (item.recommended_action || "action unknown")})
+  )));
+  box.appendChild(list);
+  return box;
+}
+
+function formatBuildTime(value){
+  if(!value) return "now";
+  const d = new Date(value);
+  if(Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+}
+
 function route(){
+  const buildCode = buildRouteCode();
+  if(buildCode){ renderBuild(buildCode); return; }
+  stopBuildPolling();
   if(location.hash === "#/new" || location.pathname === "/new") renderNew();
   else if(location.hash === "#/needs" || location.hash === "#needs" || location.pathname === "/needs") renderNeeds();
   else load();
@@ -840,6 +1127,11 @@ window.FOPSIdeaVision = {
 window.FOPSNeedsYou = {
   actionSet, ageFrom, kindLabel, applyNeedsData,
   getState:()=>needsState, setState:s=>{ needsState = Object.assign(needsState, s || {}); }
+};
+window.FOPSBuild = {
+  BUILD_POLL_MS, BUILD_FEED_CAP, buildRouteCode, renderBuild, fetchBuild, stopBuildPolling,
+  isBuildDegraded, phaseClass, renderBuildSpec, renderBuildFeed, renderStalls,
+  getState:()=>buildState, setState:s=>{ buildState = Object.assign(buildState, s || {}); }
 };
 init();
 </script>
