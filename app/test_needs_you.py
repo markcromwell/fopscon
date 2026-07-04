@@ -77,10 +77,30 @@ def test_needs_you_honest_empty(monkeypatch):
 
 
 def test_needs_you_degrades_on_source_failure_not_crash(monkeypatch):
-    # accept source down → omit it honestly, still return the phase items (no crash, no fabrication)
+    # accept source down → omit it honestly, still return the phase items (no crash, no fabrication),
+    # AND flag the failed source in `degraded` so the empty/partial isn't read as a confirmed clear.
     _stub(monkeypatch, phases=[{"id": 3566, "title": "x", "status": "needs_human"}], fail="/accept/reviewable")
     out = _run(ny.needs_you(user={"dev": True}))
     assert out["count"] == 1 and out["items"][0]["id"] == "phase:3566"
+    assert out["degraded"] == ["accept"]
+
+
+def test_needs_you_both_sources_down_is_degraded_not_false_all_clear(monkeypatch):
+    # THE honesty inversion CoEv2 caught: both sources down → count=0, but `degraded` names both so the
+    # client renders "couldn't reach some sources", NEVER the reassuring "Nothing needs you".
+    async def fake_get(client, path):
+        raise RuntimeError("source down")
+    monkeypatch.setattr(ny, "_sov_get", fake_get)
+    out = _run(ny.needs_you(user={"dev": True}))
+    assert out["count"] == 0
+    assert set(out["degraded"]) == {"accept", "phases"}  # empty-because-degraded, not empty-because-zero
+
+
+def test_needs_you_healthy_empty_has_no_degraded(monkeypatch):
+    # a genuine zero → empty `degraded`, so the client CAN show the honest "Nothing needs you"
+    _stub(monkeypatch)
+    out = _run(ny.needs_you(user={"dev": True}))
+    assert out["count"] == 0 and out["degraded"] == []
 
 
 # ── resolve routing ──────────────────────────────────────────────────────────

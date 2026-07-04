@@ -126,26 +126,38 @@ async def needs_you(user: dict = Depends(require_user)) -> dict:
     a fabricated item — the PO sees what actually needs them, or an honest empty.
     """
     filtered_out: dict = {}
+    degraded: list[str] = []
     async with httpx.AsyncClient() as client:
         async def _accepts():
             try:
                 return _accept_items(await _sov_get(client, "/accept/reviewable"), filtered_out)
             except Exception:  # noqa: BLE001 — omit this source honestly, don't crash the inbox
+                degraded.append("accept")
                 return []
 
         async def _phases():
             try:
                 return _phase_items(await _sov_get(client, "/coding/phases/needs-human"))
             except Exception:  # noqa: BLE001
+                degraded.append("phases")
                 return []
 
         accepts, phases = await asyncio.gather(_accepts(), _phases())
 
     items = accepts + phases
     items.sort(key=lambda i: (_KIND_PRIORITY.get(i["kind"], 9), str(i.get("created_at") or "")))
-    # `filtered_out` surfaces excluded accept statuses so an unlisted-but-pending status is visible, not
-    # silently dropped (CoEv2 advisory #1). It is diagnostics, NOT inbox content — the UI ignores it.
-    return {"items": items, "count": len(items), "source": "sov_live_aggregation", "filtered_out": filtered_out}
+    # `filtered_out` = which STATUSES were excluded (an unlisted-but-pending status shows as a count, not a
+    # silent drop — advisory #1). `degraded` = which SOURCES could not be reached (CoEv2 honesty catch): an
+    # empty inbox with a non-empty `degraded` is NOT a confirmed all-clear — the client MUST render
+    # "couldn't reach some sources" over that empty, never the reassuring "Nothing needs you". A broken
+    # inbox must not read as green. Both are diagnostics, not inbox content.
+    return {
+        "items": items,
+        "count": len(items),
+        "source": "sov_live_aggregation",
+        "filtered_out": filtered_out,
+        "degraded": degraded,
+    }
 
 
 @router.post("/needs-you/{item_id}/resolve")
