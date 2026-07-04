@@ -90,9 +90,31 @@ def test_resolve_accept_routes_to_programmer_decision(monkeypatch):
         calls.append((path, payload)); return {}
     _stub(monkeypatch)
     monkeypatch.setattr(ny, "_sov_post", fake_post)
-    _run(ny.resolve("accept:21", ny.ResolveIn(decision="accept", note="lgtm"), user={"dev": True}))
+    _run(ny.resolve("accept:21", ny.ResolveIn(decision="accept", note="lgtm"), user={"email": "mark@x.com"}))
     assert calls[0][0] == "/accept/21/programmer-decision"
-    assert calls[0][1] == {"decision": "accept", "note": "lgtm"}
+    # SOV's ProgrammerDecision requires actor + uses `notes` (not `note`)
+    assert calls[0][1] == {"actor": "mark@x.com", "decision": "accept", "notes": "lgtm"}
+
+
+def test_resolve_accept_rejects_invalid_decision(monkeypatch):
+    _stub(monkeypatch)
+    async def fake_post(client, path, payload):
+        return {}
+    monkeypatch.setattr(ny, "_sov_post", fake_post)
+    with pytest.raises(HTTPException) as e:
+        _run(ny.resolve("accept:21", ny.ResolveIn(decision="looks_good"), user={"dev": True}))
+    assert e.value.status_code == 422  # only accept | request_changes are valid
+
+
+def test_needs_you_reports_filtered_out_statuses(monkeypatch):
+    # observability: excluded statuses are tallied so an unlisted-but-pending status is visible
+    _stub(monkeypatch, reviewable={"subjects": [
+        {"id": 1, "status": "draft"}, {"id": 2, "status": "draft"}, {"id": 3, "status": "cancelled"},
+        {"id": 4, "status": "waiting_po_review", "title": "real", "program_code": "P"},
+    ]})
+    out = _run(ny.needs_you(user={"dev": True}))
+    assert out["count"] == 1  # only the waiting_po_review item is inbox content
+    assert out["filtered_out"] == {"draft": 2, "cancelled": 1}
 
 
 def test_resolve_phase_accept_routes_to_approve(monkeypatch):

@@ -71,11 +71,19 @@ async def _sov_post(client: httpx.AsyncClient, path: str, payload: dict):
     return r.json()
 
 
-def _accept_items(reviewable: dict) -> list[dict]:
-    """Map PO-pending accept subjects → NeedsItem. Filters to states awaiting a human (honesty)."""
+def _accept_items(reviewable: dict, filtered_out: dict | None = None) -> list[dict]:
+    """Map PO-pending accept subjects → NeedsItem. Filters to states awaiting a human (honesty).
+
+    Observability (CoEv2 advisory #1): a genuinely-pending status we forgot to allowlist would make a real
+    PO item silently invisible. So we tally every EXCLUDED status into `filtered_out` — an unexpected new
+    status shows up as a non-zero count instead of vanishing (honest-partial applied to the filter itself).
+    """
     out = []
     for s in (reviewable or {}).get("subjects", []):
-        if s.get("status") not in PO_PENDING_STATUSES:
+        status = s.get("status")
+        if status not in PO_PENDING_STATUSES:
+            if filtered_out is not None:
+                filtered_out[status] = filtered_out.get(status, 0) + 1
             continue
         sid = s.get("id")
         out.append({
@@ -117,10 +125,11 @@ async def needs_you(user: dict = Depends(require_user)) -> dict:
     A per-source fetch failure degrades to omitting THAT source (honest partial), never a crash and never
     a fabricated item — the PO sees what actually needs them, or an honest empty.
     """
+    filtered_out: dict = {}
     async with httpx.AsyncClient() as client:
         async def _accepts():
             try:
-                return _accept_items(await _sov_get(client, "/accept/reviewable"))
+                return _accept_items(await _sov_get(client, "/accept/reviewable"), filtered_out)
             except Exception:  # noqa: BLE001 — omit this source honestly, don't crash the inbox
                 return []
 
@@ -134,7 +143,9 @@ async def needs_you(user: dict = Depends(require_user)) -> dict:
 
     items = accepts + phases
     items.sort(key=lambda i: (_KIND_PRIORITY.get(i["kind"], 9), str(i.get("created_at") or "")))
-    return {"items": items, "count": len(items), "source": "sov_live_aggregation"}
+    # `filtered_out` surfaces excluded accept statuses so an unlisted-but-pending status is visible, not
+    # silently dropped (CoEv2 advisory #1). It is diagnostics, NOT inbox content — the UI ignores it.
+    return {"items": items, "count": len(items), "source": "sov_live_aggregation", "filtered_out": filtered_out}
 
 
 @router.post("/needs-you/{item_id}/resolve")
@@ -153,9 +164,16 @@ async def resolve(item_id: str, body: ResolveIn, user: dict = Depends(require_us
     async with httpx.AsyncClient() as client:
         try:
             if source == "accept":
-                payload = {"decision": body.decision}
-                if body.note:
-                    payload["note"] = body.note
+                # SOV's ProgrammerDecision REQUIRES actor + uses `notes` (not `note`), and accepts ONLY
+                # decision ∈ {accept, request_changes} (422 otherwise). Send the resolver's identity as
+                # actor so the sign-off is attributed to the real human, not anonymous.
+                if body.decision not in ("accept", "request_changes"):
+                    raise HTTPException(422, "sign-off decision must be 'accept' or 'request_changes'")
+                payload = {
+                    "actor": user.get("email") or "fopscon-po",
+                    "decision": body.decision,
+                    "notes": body.note or "",
+                }
                 await _sov_post(client, f"/accept/{sid}/programmer-decision", payload)
             elif source == "phase":
                 # accept clears the phase; request_changes on a phase isn't a simple endpoint yet → reject
