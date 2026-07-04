@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Needs You — FOPSCON Slice 2 (target mockup)</title>
+<style>
+  /* Reuses the Slice-0/1 D1 token system so the console is one coherent surface. */
+  :root{
+    color-scheme: light;
+    --bg:#f7f7f4; --surface:#fff; --line:#e3e3dd; --ink:#1f2933; --ink-soft:#5b6672; --ink-faint:#8a94a0;
+    --accent:#2f6f4f;
+    --two-key:#2f8f5b; --one-key:#d69a2d; --vacuous:#e07b39; --blocked:#c9483b; --unknown:#b7bcc4;
+    --r-sm:6px; --r-md:10px; --r-lg:16px; --r-pill:999px;
+    --t-11:.6875rem; --t-12:.75rem; --t-13:.8125rem; --t-14:.875rem; --t-16:1rem; --t-18:1.125rem;
+    --t-22:1.375rem; --t-28:1.75rem; --t-34:2.125rem;
+    font-family: system-ui,-apple-system,"Segoe UI",sans-serif; color:var(--ink); background:var(--bg);
+  }
+  *{box-sizing:border-box}
+  body{margin:0; min-height:100vh; overflow-x:hidden}                 /* D6 */
+  :focus-visible{outline:3px solid #2f6f4f66; outline-offset:2px; border-radius:var(--r-sm)}  /* D3 */
+  @media (prefers-reduced-motion: reduce){*{animation:none !important; transition:none !important}}
+
+  /* ── phone-first: the console lives in the PO's hand (DoS #6, 390×844) ── */
+  header.top{position:sticky; top:0; z-index:5; background:var(--surface); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:.6rem; padding:.7rem clamp(.85rem,4vw,1.1rem)}
+  .brand{font-size:var(--t-14); font-weight:650; letter-spacing:-.01em; white-space:nowrap}
+  .brand small{color:var(--ink-faint); font-weight:500}
+  .spacer{flex:1}
+  /* the pending-count badge — ALWAYS in the initial viewport (DoS #6) */
+  .count{display:inline-flex; align-items:center; gap:.4rem; font-size:var(--t-12); font-weight:650;
+    padding:.3rem .6rem; border-radius:var(--r-pill); background:#fdf2ea; color:var(--vacuous); border:1px solid #f0d3ba}
+  .count .n{font-size:var(--t-14)}
+  .count.clear{background:#f0f8f2; color:var(--two-key); border-color:#bfe0cb}
+
+  main{max-width:440px; margin:0 auto; padding:clamp(.85rem,4vw,1.1rem)}
+  h1{font-size:var(--t-22); margin:.1rem 0 .1rem; letter-spacing:-.02em}
+  .sub{color:var(--ink-soft); font-size:var(--t-13); margin:0 0 1.1rem; line-height:1.4}
+
+  /* ── the inbox: the prioritized list is the ONE primary object (D2) ── */
+  .inbox{display:flex; flex-direction:column; gap:.7rem}
+  .item{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg); padding:.9rem;
+    display:flex; flex-direction:column; gap:.6rem}
+  .item.top{border-color:#e7cdb6; box-shadow:0 1px 0 #f0d3ba}          /* highest priority, subtly lifted */
+  .meta-row{display:flex; align-items:center; gap:.5rem; flex-wrap:wrap}
+  .prog{font-size:var(--t-12); font-weight:650; color:var(--ink); background:var(--bg);
+    border:1px solid var(--line); border-radius:var(--r-sm); padding:.15rem .45rem}
+  .kind{font-size:var(--t-11); text-transform:uppercase; letter-spacing:.05em; font-weight:700;
+    padding:.12rem .45rem; border-radius:var(--r-sm); color:#fff}
+  .kind.signoff{background:var(--accent)} .kind.clarify{background:#3a72a8}
+  .kind.prioritize{background:#7a5aa8} .kind.steer{background:var(--vacuous)}
+  .age{margin-left:auto; font-size:var(--t-12); color:var(--ink-faint); white-space:nowrap}
+  .ask{font-size:var(--t-16); line-height:1.35; letter-spacing:-.01em}
+
+  /* honest Trust Strip on sign-off items (computed, never a fabricated green — D5) */
+  .strip{display:flex; align-items:center; gap:.5rem; font-size:var(--t-12); color:var(--ink-soft);
+    background:var(--bg); border:1px solid var(--line); border-radius:var(--r-md); padding:.4rem .55rem}
+  .strip .seg{display:inline-flex; align-items:center; gap:.3rem}
+  .pip{width:9px; height:9px; border-radius:2px; flex:none}
+  .pip.two{background:var(--two-key)} .pip.one{background:var(--one-key)} .pip.vac{background:var(--vacuous)}
+  .strip.empty{color:var(--ink-faint)}
+  .strip.empty .hatch{width:34px; height:9px; border-radius:2px; flex:none;
+    background:repeating-linear-gradient(45deg,#dfe1db,#dfe1db 3px,#eceee9 3px,#eceee9 6px)}
+
+  /* the actions — touch targets >=44px (DoS #6) */
+  .actions{display:flex; gap:.5rem; flex-wrap:wrap}
+  .btn{font:inherit; font-size:var(--t-14); font-weight:600; min-height:44px; padding:.55rem 1rem;
+    border-radius:var(--r-pill); border:1px solid var(--accent); background:var(--accent); color:#fff; cursor:pointer}
+  .btn.ghost{background:transparent; color:var(--accent)}
+  .btn.quiet{background:transparent; color:var(--ink-soft); border-color:var(--line)}
+  .btn.danger{background:transparent; color:var(--blocked); border-color:#e6c4bf}
+
+  section.panel{margin-top:1.5rem}
+  .panel-tag{font-size:var(--t-11); text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); margin:0 0 .55rem}
+  .divider{height:1px; background:var(--line); margin:2rem 0 1rem}
+
+  /* the ≤3-tap resolve flow (expanded item) */
+  .resolve{border-color:var(--accent)}
+  .resolve .step{font-size:var(--t-12); color:var(--ink-soft); line-height:1.5}
+  .resolve textarea{width:100%; min-height:56px; resize:vertical; font:inherit; font-size:var(--t-14);
+    padding:.55rem; border:1px solid var(--line); border-radius:var(--r-md); background:var(--bg); color:var(--ink)}
+  .tapcount{font-size:var(--t-11); color:var(--ink-faint); font-style:italic}
+
+  /* honest empty */
+  .empty-state{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg);
+    padding:1.6rem 1.2rem; text-align:center; display:flex; flex-direction:column; gap:.4rem; align-items:center}
+  .empty-state .big{font-size:var(--t-18); font-weight:650; color:var(--two-key)}
+  .empty-state .small{font-size:var(--t-13); color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="brand">Foundation <small>· Needs you</small></span>
+  <span class="spacer"></span>
+  <!-- pending-count badge: always visible without scrolling (DoS #6) -->
+  <span class="count"><span class="n">3</span> waiting</span>
+</header>
+
+<main>
+  <h1>Needs you</h1>
+  <p class="sub">Everything across your programs that needs a human decision — one list, most-urgent first.
+    Resolve one in a couple of taps. Nothing else competes for your attention.</p>
+
+  <!-- THE INBOX — the prioritized cross-program list is the ONE primary object (D2) -->
+  <div class="inbox">
+
+    <!-- highest priority: an MVP sign-off carrying a real, computed assurance strip -->
+    <div class="item top">
+      <div class="meta-row">
+        <span class="prog">KITH</span><span class="kind signoff">sign-off</span>
+        <span class="age">2h ago</span>
+      </div>
+      <div class="ask">Sign off the MVP finale — <strong>Overdue-Nudge Home</strong>. An overdue person surfaces
+        ranked by days overdue; “reached out” logs it and drops them off.</div>
+      <div class="strip" title="Computed from what actually ran on this increment">
+        <span class="seg"><span class="pip two"></span>2 two-key</span>
+        <span class="seg"><span class="pip one"></span>1 one-key</span>
+        <span class="spacer"></span><span>UAT + adversarial ran</span>
+      </div>
+      <div class="actions">
+        <button class="btn">Review &amp; sign off</button>
+        <button class="btn ghost">Request changes</button>
+      </div>
+    </div>
+
+    <!-- a clarification the PO must answer -->
+    <div class="item">
+      <div class="meta-row">
+        <span class="prog">FOPSCON</span><span class="kind clarify">clarify</span>
+        <span class="age">4h ago</span>
+      </div>
+      <div class="ask">Which hostname should the public console live on —
+        <strong>console.markcromwell.com</strong>, or a subpath of an existing domain?</div>
+      <div class="actions">
+        <button class="btn">Answer</button>
+      </div>
+    </div>
+
+    <!-- a prioritization decision -->
+    <div class="item">
+      <div class="meta-row">
+        <span class="prog">MCP</span><span class="kind prioritize">prioritize</span>
+        <span class="age">yesterday</span>
+      </div>
+      <div class="ask">Two hardening specs are ready. Which goes first —
+        <strong>semgrep → forge-brief</strong>, or <strong>git-truth status</strong>?</div>
+      <div class="actions">
+        <button class="btn">Choose order</button>
+        <button class="btn quiet">Later</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────
+       Below: the other STATES this screen renders, shown for review.
+       On the real screen only ONE is on screen at a time.
+       ───────────────────────────────────────────────────────────── -->
+  <div class="divider"></div>
+
+  <!-- STATE: resolve flow — <=3 taps (DoS #1) -->
+  <section class="panel">
+    <p class="panel-tag">state · resolving (≤ 3 taps)</p>
+    <div class="item resolve">
+      <div class="meta-row">
+        <span class="prog">KITH</span><span class="kind signoff">sign-off</span>
+        <span class="age">2h ago</span>
+      </div>
+      <div class="ask">Sign off <strong>Overdue-Nudge Home</strong>?</div>
+      <p class="step"><strong>Tap 1</strong> opened this · <strong>Tap 2</strong> pick a decision ·
+        <strong>Tap 3</strong> confirm. That’s it.</p>
+      <textarea placeholder="Optional note to the loop…"></textarea>
+      <div class="actions">
+        <button class="btn">Accept &amp; sign off</button>
+        <button class="btn danger">Request changes</button>
+      </div>
+      <span class="tapcount">Calls the real SOV accept endpoint · the item then drops off the list.</span>
+    </div>
+  </section>
+
+  <!-- STATE: an item whose assurance is genuinely absent — honest, never a fake green (D5) -->
+  <section class="panel">
+    <p class="panel-tag">state · sign-off with NO assurance data (honest)</p>
+    <div class="item">
+      <div class="meta-row">
+        <span class="prog">DMI-IPAC</span><span class="kind steer">steer</span>
+        <span class="age">3d ago</span>
+      </div>
+      <div class="ask">The heat-exchanger sizing model differs 8% from the vendor spec sheet.
+        Accept the model’s number, or revise the assumption?</div>
+      <div class="strip empty" title="No assurance manifest on this item yet">
+        <span class="hatch"></span> No assurance data yet — decide on the merits, not a green.
+      </div>
+      <div class="actions">
+        <button class="btn">Review the diff</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATE: honest empty — nothing needs the PO -->
+  <section class="panel">
+    <p class="panel-tag">state · nothing pending (honest empty)</p>
+    <div class="empty-state">
+      <div class="big">Nothing needs you right now</div>
+      <div class="small">Every program is either building on its own or already signed off.
+        You’ll get a nudge the moment something needs a decision.</div>
+    </div>
+  </section>
+</main>
+</body>
+</html>
