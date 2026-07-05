@@ -1,7 +1,7 @@
 # Program Map: Foundation Operator Console
 
-<!--GENERATED:BEGIN hash=27ae9df425dbc25dd7f9a86c25023a70ccb7f811eb7fefd942872623a2f39653 sig= job=0 commit=1c9557eb173c41e4375d9eb0d9b4bd1af316fcbb-->
-<!--Generated 2026-07-05T02:32:49.585785+00:00. Do not edit — will be overwritten.-->
+<!--GENERATED:BEGIN hash=da43b4055ae64982f5684cd46124e0e78fcd8c8ab15bbfaacb7e2ef5c025ad60 sig= job=0 commit=7d0413f46a2b743ec1feeab2c1ca74fcac85f747-->
+<!--Generated 2026-07-05T04:12:51.794344+00:00. Do not edit — will be overwritten.-->
 
 ## II. Canonical Data Schema [GENERATED — do not edit]
 

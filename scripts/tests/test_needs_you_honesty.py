@@ -59,6 +59,36 @@ def test_tokened_no_external_styles_focus_visible_and_reduced_motion():
         assert "var(--" in block
 
 
+def test_degraded_zero_uses_datafail_not_calm_empty():
+    script = _script()
+    shell = _function(script, "renderNeedsShell")
+    degraded = _function(script, "renderNeedsDegraded")
+    assert "needsState.count === 0 && needsState.degraded.length" in shell
+    assert "list.appendChild(renderNeedsDegraded())" in shell
+    assert 'class:"datafail needs-datafail"' in degraded
+    assert "needsState.degraded.map" in degraded
+    assert "couldn't read Needs You" in degraded
+    assert "This isn't a confirmed clear queue" not in degraded
+    assert "Nothing needs you right now" not in degraded
+    assert "two-key" not in degraded
+
+
+def test_clean_empty_and_badge_absence_remain_data_bound():
+    script = _script()
+    shell = _function(script, "renderNeedsShell")
+    badge = _function(script, "setNeedsBadge")
+    chrome = _function(script, "renderShellChrome")
+    assert "needsState.count === 0 && needsState.degraded.length" in shell
+    assert "needsState.count === 0" in shell
+    assert "Nothing needs you right now" in shell
+    assert "needsState.count > 0 ? el(\"span\", {class:\"needs-count\"" in shell
+    assert "shellState.needsCount = Number(count) || 0" in badge
+    assert 'step.id === "guide" && shellState.needsCount > 0' in chrome
+    assert 'text:String(shellState.needsCount)' in chrome
+    assert 'text:"3"' not in shell
+    assert 'class:"badge", id:"needs-badge"' in chrome
+
+
 def test_no_static_universal_trust_claims_in_needs_render_path():
     script = _script().lower()
     start = script.index("function renderneeds")
@@ -82,5 +112,5 @@ def test_single_primary_object_and_focusable_action_controls():
     assert 'data-primary-object":"needs-list"' in script
     assert 'el("button"' in _function(script, "renderNeedsItem")
     assert 'el("button"' in _function(script, "renderResolveBox")
-    assert ".decision-row .btn{min-height:44px}" in style
-    assert ".needs-action{min-height:44px}" in style
+    assert ".decision-row .btn{min-height:44px" in style
+    assert ".needs-action{min-height:44px" in style
