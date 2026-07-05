@@ -99,3 +99,62 @@ def test_fopsliving_handle_exposes_route_fetch_render_helpers():
         "renderLivingRecap",
     ):
         assert name in handle
+
+
+# --- sad-branch teeth ([S4] coverage-gap close — parity with screen-2/3) ---
+
+
+def test_not_running_renders_notlive_not_fabricated_running():
+    # A program that is not live must render the honest .notlive state and MUST NOT
+    # emit the running window / Open-it. Bound to data.running, never fabricated.
+    fn = _function(_script(), "renderLivingRunning")
+    assert "if(data.running !== true){" in fn
+    guard = fn.index("if(data.running !== true){")
+    notlive = fn.index('class:"notlive"')
+    open_it = fn.index('class:"open-it"')
+    assert guard < notlive < open_it  # notlive returns BEFORE any running/Open-it markup
+    assert "there is nothing to fake" in fn
+    assert 'role:"status"' in fn[guard:open_it]
+    # the running window + Open-it are url-GATED (no url -> no Open-it), never unconditional
+    assert "data.url ?" in fn or "if(data.url)" in fn
+
+
+def test_feature_assurance_binds_real_state_never_fabricates_two_key():
+    script = _script()
+    strip = _function(script, "featureAssuranceStrip")
+    features = _function(script, "renderLivingFeatures")
+    # honest abstain when no assurance — not a fabricated all-clear
+    assert 'if(!assurance) return {total:0' in strip
+    assert 'caption:"no assurance data yet"' in strip
+    # the rendered state is derived from the ARG, not hardcoded
+    assert 'String(assurance' in strip
+    assert "counts[state] = 1" in strip
+    # never fabricates a two-key/all-green manifest inside the strip
+    assert "two_key" not in strip
+    assert "two-key" not in strip
+    # per-feature strip is bound to the REAL feature.assurance value
+    assert "trustStrip(featureAssuranceStrip(feature.assurance))" in features
+    # a blocked assurance maps to a real (non-green) trust class, not two-key
+    assert 'blocked:"blocked"' in script
+
+
+def test_degraded_living_read_uses_amber_datafail_before_running():
+    script = _script()
+    style = _style()
+    shell = _function(script, "renderLivingShell")
+    degraded = _function(script, "renderLivingDegraded")
+    is_deg = _function(script, "isLivingDegraded")
+    # degraded read is checked BEFORE the running/not-live render (ordering teeth)
+    assert "if(isLivingDegraded(data)){" in shell
+    assert shell.index("if(isLivingDegraded(data))") < shell.index("renderLivingRunning(data)")
+    # a living read error OR a non-empty degraded list -> degraded (not green/not-live)
+    assert "livingState.error" in is_deg
+    assert "degraded.length > 0" in is_deg
+    # the degraded panel is amber datafail, names the source, and is explicitly NOT not-live/running
+    assert 'class:"datafail living-datafail"' in degraded
+    assert 'role:"alert"' in degraded
+    assert 'el("code", {text:source})' in degraded
+    assert "not shown as not-live or running" in degraded
+    datafail = style[style.index(".datafail{") : style.find("}", style.index(".datafail{"))]
+    assert "250,178,25" in datafail  # amber border (§5.11), not green
+    assert "var(--two-key)" not in datafail
