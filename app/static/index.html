@@ -1438,16 +1438,6 @@ function route(){
   else load();
 }
 
-// two-lens toggle — a render-density + default-landing parameter (design §1), persisted per session.
-function setLens(l){
-  document.getElementById("lens-po").setAttribute("aria-pressed", String(l==="po"));
-  document.getElementById("lens-op").setAttribute("aria-pressed", String(l==="op"));
-  document.body.dataset.lens = l; try{ localStorage.setItem("fops_lens", l); }catch(_){}
-}
-document.getElementById("lens-po").addEventListener("click", ()=>setLens("po"));
-document.getElementById("lens-op").addEventListener("click", ()=>setLens("op"));
-setLens((()=>{ try{ return localStorage.getItem("fops_lens") || "po"; }catch(_){ return "po"; }})());
-
 // init: route first; API 401/403 flips to the sign-in screen (load()/submit handlers handle it).
 function init(){ route(); }
 window.addEventListener("hashchange", route);
