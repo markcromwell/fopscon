@@ -239,16 +239,58 @@
   .stall-blocker{font-size:var(--t-13); color:var(--crit); font-weight:650; overflow-wrap:anywhere}
   .stall-action,.stall-recommendation{font-size:var(--t-13); color:var(--ink-2); overflow-wrap:anywhere}
   .stall-recommendation b{color:var(--ink); font-weight:650}
-  .build-datafail{margin-top:.35rem}
-  .build-error,.living-error{background:var(--surface-2); border:1px solid var(--blocked); color:var(--crit-hi); border-radius:var(--r-lg); padding:.9rem; font-size:var(--t-14)}
+  .build-datafail,.living-datafail{margin-top:.35rem}
+  .build-error{background:var(--surface-2); border:1px solid var(--blocked); color:var(--crit-hi); border-radius:var(--r-lg); padding:.9rem; font-size:var(--t-14)}
   .build-empty{font-size:var(--t-13); color:var(--ink-3); border:1px dashed var(--line); border-radius:var(--r-md); padding:.75rem; background:var(--surface)}
 
-  .screen-living{max-width:820px; overflow-x:hidden; color:var(--ink)}.living-born{font-size:var(--t-13); color:var(--ink-3); margin:0}.living-born b{color:var(--ink-2); font-weight:650; overflow-wrap:anywhere}.living-window{padding:1.05rem; display:flex; flex-direction:column; gap:.9rem; min-width:0; color:var(--ink)}
-  .running-status{display:inline-flex; align-items:center; gap:.45rem; font-size:var(--t-13); font-weight:750; color:var(--accent-text); background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-pill); padding:.28rem .7rem}.running-status::before{content:""; width:8px; height:8px; border-radius:50%; background:var(--accent); animation:pulse 1.4s ease-in-out infinite}
-  .living-url{font-size:var(--t-14); color:var(--ink); font-family:var(--mono); min-width:0; overflow-wrap:anywhere}.open-it{margin-left:auto; display:inline-flex; align-items:center; min-height:44px; font:inherit; font-size:var(--t-14); font-weight:700; text-decoration:none; color:var(--on-accent); background:var(--accent); border:1px solid var(--accent); border-radius:var(--r-pill); padding:.5rem 1.05rem}
-  .vitals{gap:1.2rem; padding-top:.35rem; border-top:1px solid var(--line)}.vital{min-width:7.5rem}.vital .k{font-size:var(--t-11); text-transform:uppercase; letter-spacing:.05em; color:var(--ink-3)}.vital .v{font-size:var(--t-18); font-weight:750; color:var(--ink); overflow-wrap:anywhere}
-  .notlive{padding:1.4rem 1rem; text-align:center; display:flex; flex-direction:column; gap:.35rem; align-items:center; color:var(--ink)}.living-block{margin-top:.35rem; min-width:0}.living-features{display:flex; flex-direction:column; gap:.6rem; min-width:0}.living-feature{background:var(--surface); border:1px solid var(--line); border-radius:var(--r-md); padding:.75rem .85rem; display:grid; grid-template-columns:minmax(0,1fr); gap:.5rem; min-width:0}.feature-name{font-size:var(--t-14); font-weight:700; color:var(--ink); overflow-wrap:anywhere}.feature-increment{font-size:var(--t-12); color:var(--ink-3)}.feature-assurance{min-width:0}.living-truncated{font-size:var(--t-12); color:var(--ink-2); border:1px dashed var(--line); border-radius:var(--r-md); padding:.65rem; background:var(--surface)}
-  .journey{display:flex; flex-direction:column; gap:0; min-width:0; color:var(--ink)}.journey-step{display:flex; gap:.75rem; align-items:flex-start; min-width:0}.journey-rail{display:flex; flex-direction:column; align-items:center; align-self:stretch; flex:none}.journey-node{width:12px; height:12px; border-radius:50%; background:var(--accent); flex:none; margin-top:.25rem}.journey-node.now{box-shadow:0 0 0 4px rgba(57,135,229,.18)}.journey-line{width:2px; flex:1; background:var(--line); margin:.15rem 0}.journey-body{padding-bottom:.75rem; min-width:0}.journey-title{font-size:var(--t-14); font-weight:700; color:var(--ink); overflow-wrap:anywhere}.journey-date{font-size:var(--t-12); color:var(--ink-3); overflow-wrap:anywhere}
+  .screen-living{max-width:820px; overflow-x:hidden; color:var(--ink)}
+  .living-shell{gap:.85rem; min-width:0; color:var(--ink)}
+  .living-shell .vhead{margin-bottom:.35rem}
+  .living-born{font-size:var(--t-13); color:var(--ink-3); margin:0}
+  .living-born b{color:var(--ink-2); font-weight:650; overflow-wrap:anywhere}
+  .living-appwin{border-radius:18px; padding:1.5px; position:relative; margin-bottom:.35rem;
+    background:linear-gradient(150deg,color-mix(in srgb,var(--good-hi) 40%,transparent),color-mix(in srgb,var(--accent) 35%,transparent) 45%,color-mix(in srgb,var(--ink) 8%,transparent));
+    box-shadow:0 30px 80px -34px color-mix(in srgb,var(--good-hi) 22%,transparent),0 24px 70px -30px color-mix(in srgb,var(--accent) 22%,transparent)}
+  .living-win{background:var(--surface-2); border-radius:17px; overflow:hidden; border:1px solid var(--line)}
+  .living-window{padding:0; display:flex; flex-direction:column; gap:.9rem; min-width:0; color:var(--ink); background:transparent; border:none; box-shadow:none}
+  .living-top{display:flex; align-items:center; gap:9px; padding:11px 16px; border-bottom:1px solid var(--line); background:color-mix(in srgb,var(--ink) 2%,transparent); flex-wrap:wrap}
+  .winbar .wdot{width:10px; height:10px; border-radius:50%; background:var(--surface-3); border:1px solid var(--line-strong); flex:none}
+  .running-status{display:inline-flex; align-items:center; gap:7px; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; color:var(--good-hi); margin-left:auto; white-space:nowrap}
+  .running-status i{width:7px; height:7px; border-radius:50%; background:var(--good-hi); animation:pulse 2.2s infinite; flex:none}
+  .living-url{font-size:11.5px; color:var(--ink-2); font-family:var(--mono); min-width:0; overflow-wrap:anywhere; flex:1; max-width:420px; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm); padding:4px 12px}
+  .winglass{padding:14px 18px; display:flex; align-items:center; gap:16px; border-top:1px solid var(--line); flex-wrap:wrap}
+  .open-it{margin-left:auto; display:inline-flex; align-items:center; min-height:44px; font:inherit; font-size:var(--t-14); font-weight:700; text-decoration:none; color:var(--on-accent); background:var(--accent); border:1px solid var(--accent); border-radius:var(--r-pill); padding:.5rem 1.05rem}
+  .vitals{display:grid; grid-template-columns:repeat(auto-fit,minmax(9rem,1fr)); gap:14px; padding-top:.15rem}
+  .vital{min-width:7.5rem; padding:15px 17px 13px; display:flex; flex-direction:column; gap:2px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg);
+    box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 3.5%,transparent),0 8px 28px -18px color-mix(in srgb,var(--bg) 70%,transparent)}
+  .vital .k{font-size:var(--t-11); text-transform:uppercase; letter-spacing:.05em; color:var(--ink-3)}
+  .vital .v{font-size:var(--t-18); font-weight:750; color:var(--ink); overflow-wrap:anywhere; font-variant-numeric:tabular-nums}
+  .notlive{padding:26px 22px; text-align:center; display:flex; flex-direction:column; gap:6px; align-items:center; color:var(--ink); max-width:720px}
+  .notlive .nring{width:34px; height:34px; border-radius:50%; border:1.5px dashed var(--line-strong); display:flex; align-items:center; justify-content:center; margin-bottom:4px; color:var(--ink-3)}
+  .notlive .big{font-size:15.5px; font-weight:650; color:var(--ink-2)}
+  .notlive .small{font-size:12.5px; color:var(--ink-3); max-width:520px; line-height:1.55}
+  .living-block{margin-top:.35rem; min-width:0; padding:20px 22px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r-lg);
+    box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 3.5%,transparent),0 8px 28px -18px color-mix(in srgb,var(--bg) 70%,transparent)}
+  .living-block h2{font-size:13px; font-weight:650; margin:0 0 4px; text-transform:none; letter-spacing:0; color:var(--ink)}
+  .living-block .block-sub{font-size:11.5px; color:var(--ink-3); margin:0 0 14px}
+  .living-features{display:flex; flex-direction:column; gap:8px; min-width:0}
+  .living-feature{background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm); padding:10px 12px; display:grid; grid-template-columns:minmax(0,1fr); gap:5px; min-width:0; color:var(--ink-2)}
+  .feature-name{font-size:var(--t-14); font-weight:600; color:var(--ink); overflow-wrap:anywhere; display:flex; align-items:flex-start; gap:7px; line-height:1.4}
+  .feature-name::before{content:""; width:5px; height:5px; border-radius:50%; background:var(--good-hi); flex:none; margin-top:6px; box-shadow:0 0 6px color-mix(in srgb,var(--good-hi) 70%,transparent)}
+  .feature-increment{font-size:10px; color:var(--ink-3); font-family:var(--mono)}
+  .feature-assurance{min-width:0}
+  .living-truncated{font-size:var(--t-12); color:var(--ink-2); border:1px dashed var(--line); border-radius:var(--r-md); padding:.65rem; background:var(--surface)}
+  .journey{display:flex; flex-direction:column; gap:0; min-width:0; color:var(--ink); position:relative; margin-left:9px}
+  .journey::before{content:""; position:absolute; left:0; top:8px; bottom:8px; width:1px; background:var(--line-strong)}
+  .journey-step{display:flex; gap:0; align-items:flex-start; min-width:0; position:relative; padding:0 0 16px 22px}
+  .journey-step:last-child{padding-bottom:0}
+  .journey-rail{display:none}
+  .journey-node{position:absolute; left:-5.5px; top:4px; width:12px; height:12px; border-radius:50%; border:2px solid var(--surface); background:var(--accent); z-index:1; margin-top:0}
+  .journey-node.now{background:var(--good); box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 18%,transparent)}
+  .journey-line{display:none}
+  .journey-body{padding-bottom:0; min-width:0}
+  .journey-title{font-size:13px; font-weight:640; color:var(--ink); overflow-wrap:anywhere}
+  .journey-date{font-size:11.5px; color:var(--ink-3); overflow-wrap:anywhere}
 
   #signin{position:fixed; inset:0; z-index:20; background:var(--bg); display:none; place-items:center}
   #signin.show{display:grid}.signin-card{padding:2rem; max-width:360px; text-align:center; display:flex; flex-direction:column; gap:1rem; align-items:center}.signin-card h2{margin:0; font-size:var(--t-18)}.signin-card p{margin:0; color:var(--ink-2); font-size:var(--t-13)}
@@ -257,7 +299,7 @@
     .app-shell{grid-template-columns:1fr}.side{position:sticky; height:auto; flex-direction:row; align-items:center; padding:10px 14px; border-right:none; border-bottom:1px solid var(--line); gap:6px; overflow-x:auto}.brand{padding:0 10px 0 0}.brand span,.raillabel,.side .foot{display:none}.rail{flex-direction:row; gap:4px}.rail::before{display:none}.rstep{padding:7px 10px; white-space:nowrap}.rstep .lbl small{display:none}.rstep .glyph{width:24px; height:24px}.rstep.seat{margin-top:0}main,.main{padding:18px 14px 50px}.hero h2{font-size:27px}
   }
   @media (max-width: 390px){
-    .screen-build{max-width:100%; overflow-x:hidden}
+    .screen-build,.screen-living{max-width:100%; overflow-x:hidden}
     .build-layout,.builds,.spec,.feed,.stall,.idle{min-width:0; max-width:100%}
     .phases-scroll{max-width:100%; min-width:0; overflow-x:auto; -webkit-overflow-scrolling:touch}
     .phase-main{min-width:8rem}
@@ -1439,32 +1481,55 @@ async function fetchLiving(code){
   }
 }
 
+function isLivingDegraded(data){
+  if(livingState.error) return true;
+  const degraded = Array.isArray(data.degraded) ? data.degraded : [];
+  return degraded.length > 0;
+}
+
+function renderLivingDegraded(){
+  const data = livingState.data || {};
+  const degraded = Array.isArray(data.degraded) ? data.degraded : [];
+  const source = degraded.length ? degraded.join(", ") : (data.source || "living");
+  return el("div", {class:"datafail living-datafail", role:"alert"},
+    el("span", {class:"pip", text:"!"}),
+    el("span", {},
+      "Couldn't read living program from ",
+      el("code", {text:source}),
+      ". The living read was unavailable, so this is not shown as not-live or running."
+    )
+  );
+}
+
 function renderLivingShell(){
   app().innerHTML = "";
   const code = livingState.program || "Program";
   const data = livingState.data || {};
+  const progLabel = data.program || code;
+  const headerSub = data.name
+    ? `This is the payoff: ${data.name} (${progLabel}) — a sentence you once said out loud, now installed, running, and quietly doing its job.`
+    : `This is the payoff: ${progLabel} — your idea, running.`;
   const shell = el("section", {class:"living-shell"},
     el("a", {class:"back", href:"#/", text:"← Portfolio"}),
+    el("div", {class:"vhead"},
+      el("div", {},
+        el("h1", {text:"The Living Program"}),
+        el("p", {text:headerSub})
+      ),
+      data.running === true ? el("span", {class:"live"}, el("i"), "Loop live") : null
+    ),
     el("p", {class:"living-born"},
       "Born from your sentence: ",
       el("b", {text:data.idea_sentence || "waiting for the program sentence"})
-    ),
-    el("div", {class:"toolbar"},
-      el("div", {},
-        el("h1", {text:data.name ? `${data.name} is ${data.running === false ? "not live yet" : "living"}` : "Living Program"}),
-        el("p", {class:"sub", text:`${data.program || code} live read from the Living BFF.`})
-      )
     )
   );
-  if(livingState.error){
-    shell.appendChild(el("div", {class:"living-error", role:"alert", text:livingState.error}));
-    if(!livingState.data){
-      app().appendChild(shell);
-      return;
-    }
-  }
   if(livingState.loading && !livingState.data){
     shell.appendChild(el("div", {class:"state", role:"status", text:"Loading living program…"}));
+    app().appendChild(shell);
+    return;
+  }
+  if(isLivingDegraded(data)){
+    shell.appendChild(renderLivingDegraded());
     app().appendChild(shell);
     return;
   }
@@ -1481,19 +1546,26 @@ function renderLivingShell(){
 function renderLivingRunning(data){
   if(data.running !== true){
     return el("section", {class:"notlive", "data-primary-object":"living-app", role:"status"},
+      el("span", {class:"nring", text:"♡"}),
       el("div", {class:"big", text:"Not live yet"}),
-      el("div", {class:"small", text:"This program has no running application URL from the Living BFF yet. When it ships, its address appears here."})
+      el("div", {class:"small", text:"This program has no running application URL from the Living BFF yet. When it ships, its address and heartbeat appear here — until then, there is nothing to fake: no URL, no health, no alive signal."})
     );
   }
   const top = el("div", {class:"living-top"},
-    el("span", {class:"running-status", text:"Running"}),
-    data.url ? el("span", {class:"living-url", text:data.url}) : null
+    el("span", {class:"wdot"}),
+    el("span", {class:"wdot"}),
+    el("span", {class:"wdot"}),
+    data.url ? el("span", {class:"living-url", text:data.url}) : null,
+    el("span", {class:"running-status"}, el("i"), "Running")
   );
+  const win = el("div", {class:"living-win"}, top);
   if(data.url){
-    top.appendChild(el("a", {class:"open-it", href:data.url, target:"_blank", rel:"noopener", text:"Open it"}));
+    win.appendChild(el("div", {class:"winglass"},
+      el("a", {class:"open-it", href:data.url, target:"_blank", rel:"noopener", text:"Open it"})
+    ));
   }
-  return el("section", {class:"living-window", "data-primary-object":"living-app"},
-    top,
+  return el("section", {class:"living-window living-appwin", "data-primary-object":"living-app"},
+    win,
     el("div", {class:"vitals"},
       el("div", {class:"vital"}, el("div", {class:"k", text:"Health"}), el("div", {class:"v", text:String(data.health ?? "health unavailable")})),
       el("div", {class:"vital"}, el("div", {class:"k", text:"Version"}), el("div", {class:"v", text:String(data.version ?? "version unavailable")}))
@@ -1506,13 +1578,14 @@ function renderLivingFeatures(data){
   if(!all.length) return null;
   const rows = all.slice(0, LIVING_FEATURE_CAP);
   const section = el("section", {class:"living-block", "aria-label":"Delivered features"},
-    el("h2", {text:"What it delivers"})
+    el("h2", {text:"What your idea can do now"}),
+    el("p", {class:"block-sub", text:`${all.length} living feature${all.length === 1 ? "" : "s"} — each began as a sentence in your Vision, with assurance bound to real key-counts.`})
   );
   if(data.features_trust_strip) section.appendChild(trustStrip(data.features_trust_strip));
   const list = el("div", {class:"living-features"});
   rows.forEach(feature => list.appendChild(el("article", {class:"living-feature"},
     el("div", {class:"feature-name", text:feature.name || "Delivered feature"}),
-    el("div", {class:"feature-increment", text:feature.increment == null ? "increment unknown" : "from increment " + feature.increment}),
+    el("div", {class:"feature-increment", text:feature.increment == null ? "increment unknown" : "born " + feature.increment}),
     el("div", {class:"feature-assurance"}, trustStrip(featureAssuranceStrip(feature.assurance)))
   )));
   section.appendChild(list);
@@ -1532,22 +1605,20 @@ function featureAssuranceStrip(assurance){
 
 function renderLivingRecap(recap, data){
   const steps = [];
-  if(recap && recap.idea_date) steps.push(["The idea", recap.idea_date]);
-  if(recap && recap.vision_date) steps.push(["Graded Vision", recap.vision_date]);
-  if(recap && recap.increments != null) steps.push(["Building", `${recap.increments} increment${Number(recap.increments)===1?"":"s"}`]);
-  if(recap && recap.first_alive) steps.push(["Living", recap.first_alive]);
+  if(recap && recap.idea_date) steps.push(["You said it out loud", recap.idea_date]);
+  if(recap && recap.vision_date) steps.push(["The loop shaped it into a Vision", recap.vision_date]);
+  if(recap && recap.increments != null) steps.push([`${recap.increments} increment${Number(recap.increments)===1?"":"s"}`, "building"]);
+  if(recap && recap.first_alive) steps.push(["Alive since", recap.first_alive]);
   if(!steps.length) return null;
   const section = el("section", {class:"living-block", "aria-label":"From a sentence to this"},
-    el("h2", {text:"From a sentence to this"})
+    el("h2", {text:"From a sentence to this"}),
+    el("p", {class:"block-sub", text:"the whole journey, in one glance"})
   );
   const journey = el("div", {class:"journey"});
   steps.forEach((step, i) => {
     const last = i === steps.length - 1;
     journey.appendChild(el("div", {class:"journey-step"},
-      el("div", {class:"journey-rail"},
-        el("span", {class:"journey-node" + (last && data && data.running === true ? " now" : "")}),
-        last ? null : el("span", {class:"journey-line"})
-      ),
+      el("span", {class:"journey-node" + (last && data && data.running === true ? " now" : "")}),
       el("div", {class:"journey-body"},
         el("div", {class:"journey-title", text:step[0]}),
         el("div", {class:"journey-date", text:String(step[1])})
@@ -1589,7 +1660,7 @@ window.FOPSBuild = {
 };
 window.FOPSLiving = {
   LIVING_FEATURE_CAP, livingRouteCode, renderLiving, fetchLiving, stopLivingPolling, renderLivingShell,
-  renderLivingRunning, renderLivingFeatures, featureAssuranceStrip, renderLivingRecap,
+  isLivingDegraded, renderLivingDegraded, renderLivingRunning, renderLivingFeatures, featureAssuranceStrip, renderLivingRecap,
   getState:()=>livingState, setState:s=>{ livingState = Object.assign(livingState, s || {}); }
 };
 init();
