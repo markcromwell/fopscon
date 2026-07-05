@@ -115,8 +115,27 @@ def test_build_css_tokened_focusable_and_mobile_scroll_guard():
     assert ":focus-visible" in style
     assert "prefers-reduced-motion: reduce" in style
     assert "body{margin:0; min-height:100vh; overflow-x:hidden}" in style
-    assert ".phases-scroll" in style and "overflow-x:auto" in style
-    for selector in (".builds{", ".spec{", ".phase{", ".feed{", ".stall{", ".idle{"):
+    scroll = style[style.index(".phases-scroll") : style.find("}", style.index(".phases-scroll"))]
+    assert "overflow-x:auto" in scroll and "max-width:100%" in scroll and "min-width:0" in scroll
+    screen_build = style[style.index(".screen-build{") : style.find("}", style.index(".screen-build{"))]
+    assert "overflow-x:hidden" in screen_build
+    assert "@media (max-width: 390px)" in style
+    phone_start = style.index("@media (max-width: 390px)")
+    phone_end = style.find("}", style.index(".phase-main{min-width:8rem}", phone_start))
+    phone = style[phone_start:phone_end]
+    assert ".phases-scroll" in phone and "overflow-x:auto" in phone
+    assert ".screen-build" in phone and "overflow-x:hidden" in phone
+    for selector in (
+        ".builds{",
+        ".spec{",
+        ".phase{",
+        ".gate-chip{",
+        ".feed{",
+        ".stall{",
+        ".mixbar{",
+        ".datafail{",
+        ".idle{",
+    ):
         block = style[style.index(selector) : style.find("}", style.index(selector))]
         assert "var(--" in block
 

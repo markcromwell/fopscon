@@ -1,7 +1,7 @@
 # Program Map: Foundation Operator Console
 
-<!--GENERATED:BEGIN hash=da43b4055ae64982f5684cd46124e0e78fcd8c8ab15bbfaacb7e2ef5c025ad60 sig= job=0 commit=7d0413f46a2b743ec1feeab2c1ca74fcac85f747-->
-<!--Generated 2026-07-05T04:12:51.794344+00:00. Do not edit — will be overwritten.-->
+<!--GENERATED:BEGIN hash=fd488c1edf23662ea9a357a06787053724c7fcc58cb8f54d9c2d769fa2b849f2 sig= job=0 commit=734b208d895243878c0fea44f82ab08d25137711-->
+<!--Generated 2026-07-05T05:48:53.378341+00:00. Do not edit — will be overwritten.-->
 
 ## II. Canonical Data Schema [GENERATED — do not edit]
 
@@ -54,6 +54,7 @@ requirements.lock
 scripts/setup.py
 scripts/smoke_boot.py
 scripts/test_unit.py
+scripts/tests/test_build_monitor_honesty.py
 scripts/tests/test_build_monitor_ui.py
 scripts/tests/test_idea_vision_ui.py
 scripts/tests/test_living_honesty.py
