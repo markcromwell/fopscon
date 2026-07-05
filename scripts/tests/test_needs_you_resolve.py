@@ -11,6 +11,11 @@ def _script():
     return "\n".join(re.findall(r"<script(?:\s[^>]*)?>(.*?)</script>", html, re.S))
 
 
+def _style():
+    html = INDEX.read_text()
+    return "\n".join(re.findall(r"<style(?:\s[^>]*)?>(.*?)</style>", html, re.S))
+
+
 def _function(script, name):
     start = script.index(f"function {name}")
     next_fn = script.find("\nfunction ", start + 1)
@@ -35,6 +40,10 @@ def test_resolve_flow_is_open_decide_confirm_at_most_three_interactions():
     assert "selectNeedsDecision(a.decision)" in script
     assert "confirmNeedsResolve(item)" in script
     assert "Tap 1 open · Tap 2 decide · Tap 3 confirm" in script
+    render = _function(script, "renderResolveBox")
+    assert 'class:"resolve-box"' in render
+    assert 'class:"btn decision-option " + (a.danger ? "blocked" : "two-key")' in render
+    assert 'el("button", {class:"btn ghost needs-action"' in render
 
 
 def test_confirm_posts_to_bff_with_verbatim_item_id_and_no_actor():
@@ -64,3 +73,12 @@ def test_success_rerenders_from_returned_items_and_updates_badge():
     assert "applyNeedsData(await res.json())" in confirm
     assert "items:Array.isArray(data.items) ? data.items : []" in apply_data
     assert "setNeedsBadge(needsState.count)" in apply_data
+
+
+def test_resolve_styles_are_dark_tokened_without_hex_literals():
+    style = _style()
+    for selector in (".resolve-box", ".decision-row", ".needs-action"):
+        start = style.index(selector)
+        block = style[start : style.find("}", start)]
+        assert "var(--" in block
+        assert "#" not in block

@@ -180,15 +180,22 @@
   .success{border:1px solid rgba(46,192,46,.42); background:rgba(12,163,12,.10); border-radius:var(--r-md); padding:.85rem; color:var(--ink); font-size:var(--t-14)}
 
   .screen-needs{max-width:520px}.needs-shell,.needs-list,.build-shell,.builds,.living-shell{display:flex; flex-direction:column; gap:.85rem; min-width:0; color:var(--ink)}
-  .needs-list{width:100%; max-width:100%}.needs-item{padding:.9rem; max-width:100%}.needs-item[aria-expanded="true"]{border-color:var(--accent)}
-  .kind-tag{font-size:var(--t-11); text-transform:uppercase; letter-spacing:.05em; font-weight:750; padding:.15rem .45rem; border-radius:var(--r-sm); color:var(--on-accent)}
-  .kind-tag.signoff{background:var(--accent)}.kind-tag.clarify{background:var(--accent)}.kind-tag.prioritize{background:var(--violet)}.kind-tag.steer{background:var(--serious)}
-  .needs-age{margin-left:auto; font-size:var(--t-12); color:var(--ink-3); white-space:nowrap}.needs-ask{font-size:var(--t-16); line-height:1.38; overflow-wrap:anywhere}.needs-action{min-height:44px}
-  .assurance-empty,.resolve-box{display:flex; gap:.5rem; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-md); padding:.6rem}
+  .needs-shell .vhead{margin-bottom:0}.needs-lede{max-width:460px; width:100%; margin:.25rem auto 0}
+  .needs-count{display:inline-flex; align-items:center; gap:.45rem; margin-left:auto; border:1px solid var(--warn); background:var(--surface-2); border-radius:var(--r-pill); padding:.25rem .75rem .25rem .65rem; font-size:var(--t-11); letter-spacing:.1em; color:var(--warn); text-transform:uppercase; font-weight:750; white-space:nowrap; font-variant-numeric:tabular-nums}
+  .needs-count b{font-size:var(--t-13); color:var(--warn)}
+  .needs-list{width:100%; max-width:460px; margin:0 auto; display:flex; flex-direction:column; gap:.75rem}
+  .needs-item{padding:.95rem 1rem; max-width:100%; display:flex; flex-direction:column; gap:.7rem}
+  .needs-item[aria-expanded="true"]{border-color:var(--accent)}
+  .needs-item:first-child{border-color:var(--warn); box-shadow:inset 0 1px 0 var(--line),0 8px 28px -18px var(--bg),0 0 22px -12px var(--warn)}
+  .kind-tag{font-size:var(--t-11); text-transform:uppercase; letter-spacing:.09em; font-weight:750; padding:.12rem .5rem; border-radius:var(--r-sm); border:1px solid; background:var(--surface); color:var(--ink-2)}
+  .kind-tag.two-key,.kind-tag.signoff{color:var(--two-key); border-color:var(--two-key)}.kind-tag.one-key,.kind-tag.clarify{color:var(--accent-text); border-color:var(--accent)}.kind-tag.vacuous,.kind-tag.prioritize{color:var(--violet-text); border-color:var(--violet)}.kind-tag.blocked,.kind-tag.steer{color:var(--blocked); border-color:var(--blocked)}.kind-tag.unknown{color:var(--unknown); border-color:var(--line-strong)}
+  .needs-age{margin-left:auto; font-size:var(--t-11); color:var(--ink-3); white-space:nowrap; font-variant-numeric:tabular-nums}.needs-ask{font-size:var(--t-14); font-weight:500; line-height:1.45; color:var(--ink); overflow-wrap:anywhere}.needs-action{min-height:44px; border-radius:var(--r-sm); display:inline-flex; align-items:center; justify-content:center; gap:.45rem}
+  .assurance-empty,.resolve-box{display:flex; gap:.5rem; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-md); padding:.65rem}
   .assurance-empty{align-items:center; font-size:var(--t-12); color:var(--ink-3)}.assurance-empty .hatch{width:36px; height:10px; flex:none; border-radius:var(--r-sm); background:repeating-linear-gradient(45deg,var(--unknown),var(--unknown) 3px,var(--surface-2) 3px,var(--surface-2) 6px)}
-  .resolve-box{flex-direction:column}.decision-row{display:flex; flex-wrap:wrap; gap:.5rem}.decision-row .btn{min-height:44px}.decision-row .btn[aria-pressed="true"]{background:var(--accent); color:var(--on-accent)}
+  .resolve-box{flex-direction:column; border-color:var(--accent)}.decision-row{display:flex; flex-wrap:wrap; gap:.5rem; color:var(--ink)}.decision-row .btn{min-height:44px; flex:1 1 9rem}.decision-row .decision-option{background:var(--surface); color:var(--ink-2); border-color:var(--line-strong)}.decision-row .btn[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--on-accent)}
+  .decision-row .decision-option.two-key{color:var(--two-key); border-color:var(--two-key)}.decision-row .decision-option.blocked{color:var(--blocked); border-color:var(--blocked)}
   .resolve-note{min-height:58px; font-size:var(--t-14); line-height:1.35; padding:.55rem}.tapcount{font-size:var(--t-11); color:var(--ink-3); font-style:italic}
-  .empty-state{padding:1.5rem 1rem; text-align:center}.empty-state .big,.idle .big,.notlive .big{font-size:var(--t-18); font-weight:750; color:var(--ink)}.empty-state .small,.idle .small,.notlive .small{font-size:var(--t-13); color:var(--ink-2); line-height:1.4}
+  .empty-state{padding:1.9rem 1.35rem; text-align:center; display:flex; flex-direction:column; gap:.5rem; align-items:center}.empty-state .ering{width:38px; height:38px; border-radius:50%; border:1.5px solid var(--two-key); display:grid; place-items:center; color:var(--two-key); margin-bottom:.15rem}.empty-state .big,.idle .big,.notlive .big{font-size:var(--t-18); font-weight:750; color:var(--two-key)}.empty-state .small,.idle .small,.notlive .small{font-size:var(--t-13); color:var(--ink-3); line-height:1.5}.needs-truncated{font-size:var(--t-12); color:var(--ink-2); border:1px dashed var(--line); border-radius:var(--r-md); padding:.65rem .75rem; background:var(--surface)}
 
   .screen-build{max-width:920px}.builds{color:var(--ink)}.build-layout{display:grid; grid-template-columns:1fr; gap:1rem; min-width:0}.spec{padding:.95rem; min-width:0; color:var(--ink)}.spec.has-failure{border-color:rgba(226,90,90,.45)}.spec.has-unknown{border-color:rgba(250,178,25,.45)}
   .spec-title{font-size:var(--t-16); font-weight:650; min-width:0; overflow-wrap:anywhere}.spec-badge.failure{color:var(--blocked); border-color:var(--blocked)}.spec-badge.unknown{color:var(--one-key); border-color:var(--one-key)}
@@ -244,6 +251,7 @@ const KEYMAP = {two_key:"two-key", one_key:"one-key", vacuous:"vacuous", blocked
 const IDEA_KEY = "fops_last_idea";
 const CREATED_KEY = "fops_created_program";
 const STORY_CAP = 200;
+const NEEDS_ITEM_CAP = 200;
 const DRAFT_TIMEOUT_MS = 240000;
 const BUILD_POLL_MS = 10000;
 const BUILD_FEED_CAP = 30;
@@ -551,32 +559,54 @@ function renderNeedsShell(){
   app().innerHTML = "";
   const shell = el("section", {class:"needs-shell", "data-primary-object":"needs-list"},
     el("a", {class:"back", href:"#/", text:"← Portfolio"}),
-    el("div", {},
-      el("h1", {text:"Needs You"}),
-      el("p", {class:"sub", text:"Pending human decisions across programs, in the order returned by the BFF."})
-    )
+    el("div", {class:"vhead"},
+      el("div", {},
+        el("h1", {text:"Needs you"}),
+        el("p", {text:"Everything across your programs that needs a human decision, in the order the loop returned it."})
+      ),
+      needsState.count > 0 ? el("span", {class:"needs-count", "aria-label":`${needsState.count} waiting`}, el("b", {text:String(needsState.count)}), "waiting") : null
+    ),
+    el("div", {class:"needs-lede micro", text:"The loop suggests — you decide. Resolve one in a couple of taps; nothing else competes for your attention."})
   );
   const list = el("div", {class:"needs-list", id:"needs-list"});
   if(needsState.loading){
-    list.appendChild(el("div", {class:"state", role:"status", text:"Loading Needs You…"}));
+    list.appendChild(el("div", {class:"state", role:"status", text:"Loading what needs you…"}));
   }else if(needsState.error){
     list.appendChild(el("div", {class:"state err", role:"alert", text:needsState.error}));
   }else if(needsState.count === 0 && needsState.degraded.length){
-    list.appendChild(el("div", {class:"state err", role:"status", text:"Could not reach every source for Needs You."}));
+    list.appendChild(renderNeedsDegraded());
   }else if(needsState.count === 0){
     list.appendChild(el("div", {class:"empty-state", role:"status"},
+      el("div", {class:"ering", "aria-hidden":"true", text:"✓"}),
       el("div", {class:"big", text:"Nothing needs you right now"}),
-      el("div", {class:"small", text:"The inbox is empty because the BFF returned zero pending items."})
+      el("div", {class:"small", text:"The loop has nothing awaiting a human because the BFF returned a clean zero."})
     ));
   }else{
-    needsState.items.forEach(item => list.appendChild(renderNeedsItem(item)));
+    const rows = needsState.items.slice(0, NEEDS_ITEM_CAP);
+    rows.forEach(item => list.appendChild(renderNeedsItem(item)));
+    const total = Math.max(needsState.count, needsState.items.length);
+    if(total > rows.length){
+      list.appendChild(el("div", {class:"needs-truncated", role:"status", text:`Showing ${rows.length} of ${total} needs returned.`}));
+    }
   }
   shell.appendChild(list);
   app().appendChild(shell);
 }
 
+function renderNeedsDegraded(){
+  const sources = needsState.degraded.map(s => String(s || "unknown source"));
+  return el("div", {class:"datafail needs-datafail", role:"status"},
+    el("div", {class:"micro"}, el("span", {class:"pip", "aria-hidden":"true", text:"!"}), "couldn't read Needs You"),
+    el("p", {}, "A source didn't answer — this isn't a confirmed clear queue, just what the console could reach."),
+    el("p", {}, "source", sources.length === 1 ? "" : "s", ": ",
+      sources.map((source, i) => [i ? ", " : "", el("code", {text:source})])
+    )
+  );
+}
+
 function renderNeedsItem(item){
   const open = needsState.openId === item.id;
+  const actionable = item.actionable !== false;
   const box = el("article", {class:"needs-item", "data-needs-id":item.id || "", "data-kind":item.kind || "", "aria-expanded":open});
   box.appendChild(el("div", {class:"needs-meta"},
     el("span", {class:"program-pill", text:item.program || "Program"}),
@@ -589,7 +619,7 @@ function renderNeedsItem(item){
   }
   if(open) box.appendChild(renderResolveBox(item));
   else box.appendChild(el("div", {class:"actions"},
-    el("button", {class:"btn needs-action", type:"button", onclick:()=>openNeedsItem(item.id), text:primaryActionLabel(item.kind)})
+    el("button", {class:"btn needs-action", type:"button", disabled:needsState.resolving || !actionable, onclick:()=>openNeedsItem(item.id), text:primaryActionLabel(item.kind)})
   ));
   return box;
 }
@@ -628,7 +658,7 @@ function renderResolveBox(item){
   if(actions.length){
     box.appendChild(el("div", {class:"decision-row"},
       actions.map(a => el("button", {
-        class:"btn " + (a.danger ? "danger" : "ghost"),
+        class:"btn decision-option " + (a.danger ? "blocked" : "two-key"),
         type:"button",
         "data-decision":a.decision,
         "aria-pressed":selected === a.decision,
@@ -696,14 +726,22 @@ async function confirmNeedsResolve(item){
 }
 
 function kindClass(kind){
-  return ["signoff","clarify","prioritize","steer"].includes(kind) ? kind : "steer";
+  if(kind === "signoff" || kind === "two_key" || kind === "two-key") return "two-key";
+  if(kind === "clarify" || kind === "one_key" || kind === "one-key") return "one-key";
+  if(kind === "prioritize" || kind === "vacuous") return "vacuous";
+  if(kind === "steer" || kind === "blocked") return "blocked";
+  return "unknown";
 }
 
 function kindLabel(kind){
-  if(kind === "signoff") return "signoff";
+  if(kind === "signoff") return "sign-off";
   if(kind === "clarify") return "clarify";
   if(kind === "prioritize") return "prioritize";
   if(kind === "steer") return "steer";
+  if(kind === "two_key" || kind === "two-key") return "two-key";
+  if(kind === "one_key" || kind === "one-key") return "one-key";
+  if(kind === "vacuous") return "vacuous";
+  if(kind === "blocked") return "blocked";
   return "item";
 }
 
