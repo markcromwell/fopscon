@@ -44,11 +44,13 @@ def test_needs_list_renders_from_response_items_not_a_literal():
 def test_needs_badge_updates_from_count_and_is_header_visible():
     html = _html()
     script = _script()
-    assert 'class="needs" href="#needs"' in html
-    assert 'id="needs-badge"' in html
+    assert '<aside class="side" id="shell-side"></aside>' in html
+    assert 'id:"needs-badge"' in script
+    assert 'href:"#needs"' in script
     assert "function setNeedsBadge(count)" in script
     assert "badge.textContent = String(n)" in script
     assert 'badge.setAttribute("data-count", String(n))' in script
+    assert "shellState.needsCount = Number(count) || 0" in script
     assert "setNeedsBadge(needsState.count)" in script
 
 

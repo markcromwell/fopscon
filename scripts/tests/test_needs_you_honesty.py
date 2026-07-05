@@ -42,8 +42,8 @@ def test_phone_first_overflow_badge_and_width_guards():
     assert "overflow-x:hidden" in style
     assert ".screen-needs{max-width:520px}" in style
     assert "max-width:100%" in style
-    assert '<header class="top">' in html
-    assert 'id="needs-badge"' in html[html.index('<header class="top">') : html.index("</header>")]
+    assert '<aside class="side" id="shell-side"></aside>' in html
+    assert 'id:"needs-badge"' in _script()
 
 
 def test_tokened_no_external_styles_focus_visible_and_reduced_motion():

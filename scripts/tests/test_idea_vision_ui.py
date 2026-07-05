@@ -24,8 +24,14 @@ def test_new_route_door_has_single_primary_input_and_sample_chips():
     assert 'data-primary-object":"idea-input"' in script
     assert 'el("textarea"' in script
     assert 'id:inputId' in script
+    assert 'el("form", {class:"ideaframe"' in script
+    assert 'el("div", {class:"ideabox"}' in script
+    assert 'Idea → Vision' in script
+    assert script.count("<em>sentence like yours</em>") == 1
+    assert "Nothing builds until you say so." in script
     assert "samples = [" in script
     assert script.count('"data-sample-idea":sample') == 1
+    assert 'class:"schip"' in script
     assert len([line for line in script.splitlines() if line.strip().startswith('"A ')]) == 3
 
 
@@ -59,10 +65,12 @@ def test_submit_lifecycle_disables_button_persists_idea_and_restores_it():
 
 def test_ready_and_not_ready_render_paths_are_honest():
     script = _script()
-    assert 'v.gate.ready === true' in script
+    assert "const threshold = v.gate.threshold" in script
+    assert "const ready = v.grade >= threshold" in script
     assert 'text:ready ? "Ready to start" : "Not ready yet"' in script
     assert 'id:"start-program"' in script
-    assert "if(v.gate.ready === true) container.appendChild(renderStartFlow(v));" in script
+    assert 'text:"Looks right — start building it"' in script
+    assert 'text:"Start — locked until it clears"' in script
     assert "v.gate.findings || []" in script
     forbidden_praise = ["great idea", "looks good", "excellent", "congratulations"]
     lower = script.lower()
@@ -75,11 +83,14 @@ def test_vision_render_uses_response_body_and_handles_bad_or_oversized_payloads(
     assert "typeof v.statement === \"string\"" in script
     assert "Array.isArray(v.epics)" in script
     assert "v.gate && typeof v.gate === \"object\"" in script
+    assert "typeof v.gate.threshold === \"number\"" in script
     assert "v.statement" in script
+    assert "Born from:" in script
     assert "epic.title || epic.name" in script
     assert "STORY_CAP" in script
     assert "console.warn" in script
     assert "rendering was truncated" in script
+    assert "renderDataFail" in script
 
 
 def test_start_program_requires_confirm_and_posts_created_program_payload_once():

@@ -1,7 +1,7 @@
 # Program Map: Foundation Operator Console
 
-<!--GENERATED:BEGIN hash=23d8ed96c771b1da192e80ff28441d1fe318cbdaa69a09c9ac108ff54e8f7e71 sig= job=0 commit=e677945b6d528e18e726d5fb84ca6c686df39568-->
-<!--Generated 2026-07-04T20:51:05.437193+00:00. Do not edit — will be overwritten.-->
+<!--GENERATED:BEGIN hash=27ae9df425dbc25dd7f9a86c25023a70ccb7f811eb7fefd942872623a2f39653 sig= job=0 commit=1c9557eb173c41e4375d9eb0d9b4bd1af316fcbb-->
+<!--Generated 2026-07-05T02:32:49.585785+00:00. Do not edit — will be overwritten.-->
 
 ## II. Canonical Data Schema [GENERATED — do not edit]
 
@@ -37,6 +37,12 @@ app/test_needs_you.py
 app/test_vision.py
 app/trust_strip.py
 docker-compose.yml
+docs/design-refs/console-design-language.md
+docs/design-refs/console-gui-architecture.md
+docs/mockups-v2/build-monitor-v2.html
+docs/mockups-v2/idea-to-vision-v2.html
+docs/mockups-v2/living-program-v2.html
+docs/mockups-v2/needs-you-v2.html
 docs/mockups/slice1-idea-to-vision.html
 docs/mockups/slice2-needs-you.html
 docs/mockups/slice3-build-monitor.html
@@ -55,6 +61,9 @@ scripts/tests/test_living_ui.py
 scripts/tests/test_needs_you_honesty.py
 scripts/tests/test_needs_you_resolve.py
 scripts/tests/test_needs_you_ui.py
+scripts/tests/test_shell_heartbeat_honesty.py
+scripts/tests/test_shell_v2.py
+scripts/tests/test_vision_grade_honesty.py
 ```
 
 ## IV. API Surface [GENERATED — do not edit]
