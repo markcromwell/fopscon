@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Foundation — Needs You (v2)</title>
+<style>
+/* ============================================================
+   FOPSCON mockups-v2 · NEEDS YOU  (the Guide seat)
+   Composed strictly from:
+     coev2-working-docs/console-design-language.md   (the skin)
+     coev2-working-docs/console-gui-architecture.md  (the skeleton)
+   Content re-skinned from slice2-needs-you-mockup.html.
+   Phone-first: the console in the PO's hand — works at 390px.
+   Honesty law: every trust strip is computed; the no-assurance item
+   shows an honest gap, never a fabricated green; degraded sources
+   are named plainly, not hidden.
+   ============================================================ */
+:root{
+  --bg:#0c0c0e; --surface:#16161a; --surface-2:#1b1b20; --surface-3:#212127;
+  --line:rgba(255,255,255,.065); --line-strong:rgba(255,255,255,.13); --grid:#232329;
+  --ink:#f2f2ee; --ink-2:#c3c2b7; --ink-3:#8b897f;
+  --good:#0ca30c; --good-hi:#2ec02e; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b; --crit-hi:#e25a5a;
+  --accent:#3987e5; --aqua:#199e70; --gold:#c98500; --violet:#9085e9;
+  --r-lg:16px; --r-md:11px; --r-sm:7px;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scrollbar-color:#33333a var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(57,135,229,.35)}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:3px solid rgba(57,135,229,.4);outline-offset:2px;border-radius:var(--r-sm)}
+
+/* ---------- shell (architecture §2) ---------- */
+.app{display:grid;grid-template-columns:252px 1fr;min-height:100vh}
+.side{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;
+  border-right:1px solid var(--line);background:linear-gradient(180deg,#101014,#0c0c0e 40%);
+  padding:22px 16px 16px;z-index:40}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px 24px}
+.brand .mark{width:30px;height:30px;flex:none}
+.brand b{font-size:15px;letter-spacing:.02em}
+.brand span{display:block;font-size:10.5px;color:var(--ink-3);letter-spacing:.14em;text-transform:uppercase;margin-top:1px}
+.raillabel{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);font-weight:700;padding:0 8px 10px}
+.rail{display:flex;flex-direction:column;position:relative}
+.rail::before{content:"";position:absolute;left:21px;top:18px;bottom:18px;width:1.5px;
+  background:linear-gradient(180deg,rgba(57,135,229,.5),rgba(57,135,229,.14) 55%,rgba(255,255,255,.08))}
+.rstep{display:flex;align-items:center;gap:12px;padding:10px 8px;border-radius:var(--r-sm);
+  color:var(--ink-2);text-align:left;font-weight:500;font-size:13.5px;position:relative;
+  transition:background .15s,color .15s;z-index:1}
+.rstep:hover{background:rgba(255,255,255,.045);color:var(--ink)}
+.rstep.on{background:rgba(57,135,229,.13);color:var(--ink)}
+.rstep .glyph{width:28px;height:28px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+  background:var(--surface-2);border:1.5px solid var(--line-strong);transition:all .18s}
+.rstep .glyph svg{width:14px;height:14px;color:var(--ink-3);transition:color .18s}
+.rstep.on .glyph{border-color:var(--accent);background:rgba(57,135,229,.14);box-shadow:0 0 0 3px rgba(57,135,229,.12)}
+.rstep.on .glyph svg{color:var(--accent)}
+.rstep .lbl{min-width:0}
+.rstep .lbl small{display:block;font-size:10.5px;color:var(--ink-3);letter-spacing:.04em;font-weight:500}
+.rstep.seat{margin-top:10px}
+.rstep.seat .glyph{border-style:dashed}
+.rstep.seat.on .glyph{border-style:solid}
+.rstep .badge{margin-left:auto;flex:none;min-width:20px;height:20px;border-radius:999px;background:var(--warn);
+  color:#161005;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.side .foot{margin-top:auto;padding:14px 8px 0;border-top:1px solid var(--line)}
+.loopline{display:flex;align-items:center;gap:10px;color:var(--ink-2);font-size:12.5px}
+.loopline small{display:block;color:var(--ink-3);font-size:11px}
+.loopring{width:18px;height:18px;flex:none}
+.loopring circle.trk{fill:none;stroke:rgba(255,255,255,.12);stroke-width:2}
+.loopring circle.arc{fill:none;stroke:var(--good-hi);stroke-width:2;stroke-linecap:round;
+  stroke-dasharray:12 32;transform-origin:center;animation:orbit 4.6s linear infinite}
+@keyframes orbit{to{transform:rotate(360deg)}}
+
+/* ---------- main ---------- */
+.main{min-width:0;padding:26px 32px 70px;position:relative;animation:rise .34s cubic-bezier(.2,.7,.2,1)}
+@keyframes rise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.vhead{display:flex;align-items:flex-end;gap:14px;margin-bottom:6px;flex-wrap:wrap}
+.vhead h1{font-size:22px;font-weight:650;letter-spacing:-.01em}
+.vhead p{color:var(--ink-3);font-size:13px;max-width:520px}
+.count{display:inline-flex;align-items:center;gap:7px;margin-left:auto;
+  border:1px solid rgba(250,178,25,.42);background:rgba(250,178,25,.10);border-radius:999px;padding:4px 12px 4px 10px;
+  font-size:11px;letter-spacing:.1em;color:var(--warn);text-transform:uppercase;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.count b{font-size:13px}
+.count.clear{border-color:rgba(46,192,46,.42);background:rgba(12,163,12,.10);color:var(--good-hi)}
+.micro{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);font-weight:650}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 8px 28px -18px rgba(0,0,0,.7)}
+.btn{border-radius:8px;padding:0 16px;min-height:44px;font-weight:640;font-size:13px;
+  border:1px solid var(--line-strong);color:var(--ink-2);transition:all .14s;
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;text-decoration:none}
+.btn:hover{border-color:rgba(255,255,255,.3);color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:#2f76cd}
+.btn.approve{background:rgba(12,163,12,.12);border-color:rgba(46,192,46,.42);color:var(--good-hi)}
+.btn.approve:hover{background:rgba(12,163,12,.2)}
+.btn.reject{border-color:rgba(226,90,90,.42);color:var(--crit-hi)}
+.btn.reject:hover{background:rgba(208,59,59,.12)}
+.btn.quiet{border-color:var(--line);color:var(--ink-3)}
+
+/* ---------- the inbox: the ONE primary object ---------- */
+.lede{max-width:460px;margin:16px auto 0}
+.inbox{max-width:460px;margin:14px auto 0;display:flex;flex-direction:column;gap:12px}
+.item{padding:15px 16px;display:flex;flex-direction:column;gap:11px}
+.item.top{border-color:rgba(250,178,25,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 8px 28px -18px rgba(0,0,0,.7),0 0 22px -12px rgba(250,178,25,.35)}
+.metarow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.prog{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.04em;color:var(--ink-2);
+  border:1px solid var(--line-strong);border-radius:var(--r-sm);padding:2px 7px;background:var(--surface-2)}
+.kind{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:750;padding:2px 8px;border-radius:4px;border:1px solid}
+.kind.signoff{color:var(--good-hi);border-color:rgba(46,192,46,.4)}
+.kind.clarify{color:#7db3f0;border-color:rgba(57,135,229,.42)}
+.kind.prioritize{color:#b0a7f2;border-color:rgba(144,133,233,.42)}
+.kind.steer{color:var(--serious);border-color:rgba(236,131,90,.42)}
+.age{margin-left:auto;font-size:11px;color:var(--ink-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+.ask{font-size:14.5px;font-weight:500;line-height:1.45;color:var(--ink)}
+.ask strong{font-weight:660;color:var(--ink)}
+
+/* honest inline Trust Strip (skin §5.4 shorthand) — opens the manifest */
+.strip{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-3);
+  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-md);padding:8px 11px}
+.strip .seg{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--ink-2)}
+.pip{width:9px;height:9px;border-radius:2px;flex:none}
+.pip.two{background:var(--good);box-shadow:0 0 6px rgba(46,192,46,.6)}
+.pip.one{background:var(--warn)}
+.strip .ran{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.03em}
+.strip .see{color:#7db3f0;font-weight:600;text-decoration:underline;text-underline-offset:3px;font-size:11.5px}
+.strip .see:hover{color:var(--ink)}
+.strip.empty{color:var(--ink-3)}
+.strip.empty .hatch{width:34px;height:9px;border-radius:2px;flex:none;
+  background:repeating-linear-gradient(45deg,rgba(255,255,255,.10),rgba(255,255,255,.10) 3px,transparent 3px,transparent 6px)}
+
+.actions{display:flex;gap:9px;flex-wrap:wrap}
+.actions .btn{flex:1 1 auto;min-width:120px}
+
+/* state dividers */
+.statesplit{display:flex;align-items:center;gap:12px;margin:34px auto 16px;max-width:460px}
+.statesplit::before,.statesplit::after{content:"";flex:1;height:1px;background:var(--line)}
+.statesplit span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:700;white-space:nowrap;text-align:center}
+
+/* ≤3-tap resolve flow */
+.resolve{border-color:rgba(57,135,229,.42)}
+.steps{display:flex;gap:6px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-3)}
+.steps b{color:var(--accent);font-weight:700}
+.resolve textarea{width:100%;min-height:58px;resize:vertical;font:inherit;font-size:13.5px;
+  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);color:var(--ink);padding:9px 11px}
+.resolve textarea:focus{outline:none;border-color:rgba(57,135,229,.5)}
+.tapnote{font-size:11px;color:var(--ink-3);font-style:italic}
+
+/* honest empty */
+.empty{max-width:460px;margin:0 auto;padding:30px 22px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.empty .ering{width:38px;height:38px;border-radius:50%;border:1.5px solid rgba(46,192,46,.4);
+  display:flex;align-items:center;justify-content:center;margin-bottom:4px;box-shadow:0 0 16px -4px rgba(46,192,46,.4)}
+.empty .ering svg{width:17px;height:17px;color:var(--good-hi)}
+.empty .big{font-size:16px;font-weight:650;color:var(--good-hi)}
+.empty .small{font-size:12.5px;color:var(--ink-3);max-width:340px;line-height:1.55}
+
+/* honest degraded — some sources unreachable */
+.degraded{max-width:460px;margin:0 auto;padding:16px 18px;border-color:rgba(250,178,25,.35);
+  display:flex;gap:12px;align-items:flex-start}
+.degraded .dring{width:32px;height:32px;flex:none;border-radius:50%;border:1.5px solid rgba(250,178,25,.42);
+  display:flex;align-items:center;justify-content:center}
+.degraded .dring svg{width:15px;height:15px;color:var(--warn)}
+.degraded .big{font-size:14px;font-weight:650;color:var(--warn);margin-bottom:3px}
+.degraded .small{font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.degraded .small b{color:var(--ink);font-weight:600}
+.degraded .srcs{margin-top:8px;display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.degraded .srcs .ok{color:var(--good-hi)}
+.degraded .srcs .down{color:var(--warn)}
+
+/* ---------- trust drawer (operator lens) ---------- */
+.scrim{position:fixed;inset:0;background:rgba(6,6,8,.6);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .25s;z-index:80}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:-480px;width:440px;max-width:94vw;height:100vh;z-index:90;
+  background:var(--surface);border-left:1px solid var(--line-strong);
+  box-shadow:-30px 0 80px -30px rgba(0,0,0,.9);transition:right .3s cubic-bezier(.2,.7,.2,1);
+  display:flex;flex-direction:column}
+.drawer.on{right:0}
+.drawer .dhd{display:flex;align-items:center;gap:10px;padding:18px 20px 14px;border-bottom:1px solid var(--line)}
+.drawer .dhd svg{width:15px;height:15px;flex:none;color:var(--ink-3)}
+.drawer .dhd h3{font-size:14px;font-weight:650}
+.drawer .dhd .x{margin-left:auto;width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:var(--ink-3)}
+.drawer .dhd .x:hover{background:var(--surface-3);color:var(--ink)}
+.drawer .dbd{padding:18px 20px 30px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;font-size:13px;color:var(--ink-2)}
+.drawer .dbd .micro{display:block;margin-bottom:8px}
+.manifest{background:linear-gradient(180deg,var(--surface-2),rgba(27,27,32,.55));
+  border:1px solid var(--line-strong);border-radius:var(--r-md);padding:14px 16px 15px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.manifest .mhead{display:flex;align-items:center;gap:8px}
+.manifest .mhead svg{width:14px;height:14px;color:var(--ink-3)}
+.mflags{margin-left:auto;display:flex;gap:5px}
+.mflag{font-size:10px;letter-spacing:.09em;text-transform:uppercase;font-weight:750;padding:2px 7px;border-radius:4px;border:1px solid}
+.mflag.yes{color:var(--good-hi);border-color:rgba(46,192,46,.4)}
+.effective{display:flex;align-items:center;gap:11px;border-radius:var(--r-sm);padding:10px 13px;border:1px solid;flex-wrap:wrap}
+.effective .big{font-size:15px;font-weight:750;letter-spacing:.015em;white-space:nowrap}
+.effective .via{font-size:11px;opacity:.75;font-family:var(--mono)}
+.effective.onekey{background:rgba(250,178,25,.10);border-color:rgba(250,178,25,.42);color:var(--warn)}
+.twrow{display:flex;align-items:center;gap:12px}
+.twrow .num{font-size:21px;font-weight:680;letter-spacing:-.01em;min-width:52px;color:var(--warn);font-variant-numeric:tabular-nums}
+.twmeter{flex:1;height:8px;border-radius:4px;position:relative}
+.twmeter .trk{position:absolute;inset:0;border-radius:4px;background:var(--warn);opacity:.16}
+.twmeter .fill{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--warn);width:63%}
+.twmeter .notch{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--line-strong);left:75%}
+.twrow .cap{font-size:10.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase;font-weight:650}
+.layers{display:grid;grid-template-columns:1fr;gap:6px}
+.lchip{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:6px;padding:5px 10px;font-size:11.5px;background:rgba(0,0,0,.14)}
+.lchip .lname{font-family:var(--mono);font-size:10.5px;color:var(--ink-2)}
+.lchip .lstate{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:10px;letter-spacing:.09em;text-transform:uppercase;font-weight:750}
+.lchip svg{width:11px;height:11px;flex:none}
+.lchip.active .lstate{color:var(--good-hi)}
+.lchip.vac .lstate{color:var(--warn)}
+.lchip.na .lstate{color:var(--ink-3)}
+.mfoot{font-size:11.5px;color:var(--ink-3)}
+.mfoot i{font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--warn)}
+
+/* ---------- responsive: the shell reflows to a top bar (architecture §2) ---------- */
+@media(max-width:880px){
+  .app{grid-template-columns:1fr}
+  .side{position:sticky;height:auto;flex-direction:row;align-items:center;padding:10px 14px;
+    border-right:none;border-bottom:1px solid var(--line);gap:6px;overflow-x:auto}
+  .brand{padding:0 10px 0 0}.brand span{display:none}
+  .raillabel,.side .foot{display:none}
+  .rail{flex-direction:row;gap:4px}
+  .rail::before{display:none}
+  .rstep{padding:7px 10px;white-space:nowrap}
+  .rstep .lbl small{display:none}
+  .rstep .glyph{width:24px;height:24px}
+  .rstep.seat{margin-top:0}
+  .main{padding:16px 14px 46px}
+}
+@media(max-width:440px){
+  .main{padding:14px 12px 40px}
+  .vhead h1{font-size:20px}
+  .actions .btn{min-width:0}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s !important;transition-duration:.001s !important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= JOURNEY RAIL — Guide seat active, badge = 3 ================= -->
+  <aside class="side">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <circle cx="16" cy="16" r="12.5" stroke="#3987e5" stroke-width="2.4" stroke-dasharray="52 27" stroke-linecap="round" transform="rotate(-58 16 16)"/>
+        <circle cx="16" cy="16" r="4.4" fill="#f2f2ee"/>
+        <circle cx="27.2" cy="9.4" r="2.6" fill="#0ca30c"/>
+      </svg>
+      <div><b>Foundation</b><span>Vision Journey</span></div>
+    </div>
+    <div class="raillabel">Your idea's journey</div>
+    <nav class="rail" aria-label="Journey">
+      <button class="rstep"><span class="glyph"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 1.6v3M8 11.4v3M1.6 8h3M11.4 8h3M3.5 3.5l2.1 2.1M10.4 10.4l2.1 2.1M12.5 3.5l-2.1 2.1M5.6 10.4l-2.1 2.1"/></svg></span>
+        <span class="lbl">Idea → Vision<small>where it begins</small></span></button>
+      <button class="rstep"><span class="glyph"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M13.2 8a5.2 5.2 0 1 1-1.6-3.75"/><path d="M13.4 1.8v2.7h-2.7" stroke-linejoin="round"/></svg></span>
+        <span class="lbl">Vision → Program<small>watch it take shape</small></span></button>
+      <button class="rstep"><span class="glyph"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8 13.6S2 9.9 2 5.9a3.1 3.1 0 0 1 6-1.2A3.1 3.1 0 0 1 14 5.9c0 4-6 7.7-6 7.7z"/></svg></span>
+        <span class="lbl">The Living Program<small>your idea, running</small></span></button>
+      <button class="rstep seat on" aria-current="page"><span class="glyph"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.6 7.4V3.2a1.1 1.1 0 0 1 2.2 0V7M6.8 6.8V2.2a1.1 1.1 0 0 1 2.2 0v4.6M9 7V3.4a1.1 1.1 0 0 1 2.2 0V8"/><path d="M11.2 8V6.6a1.1 1.1 0 0 1 2.2.4c0 2.4-.4 4.2-1.4 5.4-.9 1.1-2.2 1.6-3.8 1.6-2.6 0-3.7-1.3-5.2-4.2-.5-.9.6-1.9 1.5-1.2l1.1 1"/></svg></span>
+        <span class="lbl">Guide<small>your hand on the wheel</small></span><span class="badge">3</span></button>
+      <button class="rstep"><span class="glyph"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 8c-1.4-1.9-2.4-2.9-3.8-2.9a2.9 2.9 0 0 0 0 5.8C5.6 10.9 6.6 9.9 8 8zm0 0c1.4 1.9 2.4 2.9 3.8 2.9a2.9 2.9 0 0 0 0-5.8C10.4 5.1 9.4 6.1 8 8z"/></svg></span>
+        <span class="lbl">Maintain<small>never done, by design</small></span></button>
+    </nav>
+    <div class="foot">
+      <div class="loopline">
+        <svg class="loopring" viewBox="0 0 18 18" aria-hidden="true">
+          <circle class="trk" cx="9" cy="9" r="7"/><circle class="arc" cx="9" cy="9" r="7"/>
+        </svg>
+        <div>Loop alive<small>last increment 12m ago</small></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main">
+    <div class="vhead">
+      <div><h1>Needs you</h1>
+        <p>Everything across your programs that needs a human decision — one list, most-urgent first.</p></div>
+      <span class="count"><b>3</b> waiting</span>
+    </div>
+
+    <!-- lede: count + reassurance -->
+    <div class="lede micro">The loop suggests — you decide. Resolve one in a couple of taps; nothing else competes for your attention.</div>
+
+    <!-- PRIMARY OBJECT — the prioritized cross-program inbox -->
+    <div class="inbox">
+
+      <!-- highest priority: an MVP sign-off carrying a real, computed assurance strip -->
+      <div class="card item top">
+        <div class="metarow"><span class="prog">KITH</span><span class="kind signoff">sign-off</span><span class="age">2h ago</span></div>
+        <div class="ask">Sign off the MVP finale — <strong>Overdue-Nudge Home</strong>. An overdue person surfaces ranked by days overdue; “reached out” logs it and drops them off.</div>
+        <div class="strip">
+          <span class="seg"><span class="pip two"></span>2 two-key</span>
+          <span class="seg"><span class="pip one"></span>1 one-key</span>
+          <span class="ran">UAT + adversarial ran</span>
+          <button class="see" data-manifest="kith">see the paperwork</button>
+        </div>
+        <div class="actions">
+          <button class="btn approve">Review &amp; sign off</button>
+          <button class="btn reject">Request changes</button>
+        </div>
+      </div>
+
+      <!-- a clarification the PO must answer -->
+      <div class="card item">
+        <div class="metarow"><span class="prog">FOPSCON</span><span class="kind clarify">clarify</span><span class="age">4h ago</span></div>
+        <div class="ask">Which hostname should the public console live on — <strong>console.markcromwell.com</strong>, or a subpath of an existing domain?</div>
+        <div class="actions"><button class="btn primary">Answer</button></div>
+      </div>
+
+      <!-- a prioritization decision -->
+      <div class="card item">
+        <div class="metarow"><span class="prog">MCP</span><span class="kind prioritize">prioritize</span><span class="age">yesterday</span></div>
+        <div class="ask">Two hardening specs are ready. Which goes first — <strong>semgrep → forge-brief</strong>, or <strong>git-truth status</strong>?</div>
+        <div class="actions"><button class="btn primary">Choose order</button><button class="btn quiet">Later</button></div>
+      </div>
+
+    </div>
+
+    <!-- ── other STATES this screen renders, shown for review ── -->
+
+    <div class="statesplit"><span>state · resolving — three taps, that's it</span></div>
+    <div class="inbox">
+      <div class="card item resolve">
+        <div class="metarow"><span class="prog">KITH</span><span class="kind signoff">sign-off</span><span class="age">2h ago</span></div>
+        <div class="ask">Sign off <strong>Overdue-Nudge Home</strong>?</div>
+        <p class="steps"><b>Tap 1</b> opened this · <b>Tap 2</b> pick a decision · <b>Tap 3</b> confirm.</p>
+        <textarea placeholder="Optional note to the loop…"></textarea>
+        <div class="actions">
+          <button class="btn approve">Accept &amp; sign off</button>
+          <button class="btn reject">Request changes</button>
+        </div>
+        <span class="tapnote">Calls the real SOV accept endpoint · the item then drops off the list.</span>
+      </div>
+    </div>
+
+    <div class="statesplit"><span>state · no assurance data — decide on the merits, not a green</span></div>
+    <div class="inbox">
+      <div class="card item">
+        <div class="metarow"><span class="prog">DMI-IPAC</span><span class="kind steer">steer</span><span class="age">3d ago</span></div>
+        <div class="ask">The heat-exchanger sizing model differs 8% from the vendor spec sheet. Accept the model's number, or revise the assumption?</div>
+        <div class="strip empty" title="No assurance manifest on this item yet">
+          <span class="hatch"></span> No assurance data yet — there's nothing to fake, so decide on the merits.
+        </div>
+        <div class="actions"><button class="btn primary">Review the diff</button></div>
+      </div>
+    </div>
+
+    <div class="statesplit"><span>state · nothing pending — honest empty</span></div>
+    <div class="card empty">
+      <span class="ering"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.2 8.4l3.1 3.1 6.5-6.9"/></svg></span>
+      <div class="big">Nothing needs you right now</div>
+      <div class="small">Every program is either building on its own or already signed off. You'll get a nudge the moment something needs a decision.</div>
+    </div>
+
+    <div class="statesplit"><span>state · degraded — couldn't reach some sources</span></div>
+    <div class="card degraded">
+      <span class="dring"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5.5v3.2M8 11.2h.01M8 1.8l6 10.4H2z"/></svg></span>
+      <div>
+        <div class="big">This list may be incomplete</div>
+        <div class="small">Showing <b>2 of 3</b> program sources — one didn't answer in time, so its pending items aren't here. This isn't “all clear”; it's a gap, said plainly.</div>
+        <div class="srcs">
+          <span class="ok">✓ kith · reachable</span>
+          <span class="ok">✓ fopscon · reachable</span>
+          <span class="down">— mcp · unreachable · last seen 6m ago — retrying</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ================= OPERATOR LENS: the trust drawer ================= -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="dhd">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 1.6l5.6 2.1v4.1c0 3.4-2.4 5.7-5.6 6.8-3.2-1.1-5.6-3.4-5.6-6.8V3.7z"/><path d="M5.4 8l1.8 1.9 3.4-3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h3>The honest paperwork</h3>
+    <button class="x" id="dx" aria-label="Close">✕</button>
+  </div>
+  <div class="dbd">
+    <p style="font-size:12.5px;color:var(--ink-3)">Before you sign off, here's exactly which safeguards were truly
+      <b style="color:var(--ink-2)">active</b> on this increment. The strip on the card summarizes this — it can never
+      upgrade it.</p>
+    <div><span class="micro">KITH · Overdue-Nudge Home · one-key</span>
+      <div class="manifest">
+        <div class="mhead">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 1.6l5.6 2.1v4.1c0 3.4-2.4 5.7-5.6 6.8-3.2-1.1-5.6-3.4-5.6-6.8V3.7z"/></svg>
+          <span class="micro">Assurance manifest</span>
+          <div class="mflags"><span class="mflag yes">honest</span><span class="mflag yes">sound</span></div>
+        </div>
+        <div class="effective onekey"><span class="big">ONE-KEY</span><span class="via">graded_review · lock pending your sign-off</span></div>
+        <div class="twrow"><span class="num">0.63</span>
+          <div class="twmeter"><span class="trk"></span><span class="notch"></span><span class="fill"></span></div>
+          <span class="cap">trust weight</span></div>
+        <div class="layers">
+          <div class="lchip active"><span class="lname">graded_review</span><span class="lstate"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 8.6l3.3 3.3 7-7.4"/></svg>active</span></div>
+          <div class="lchip active"><span class="lname">required_tests</span><span class="lstate"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 8.6l3.3 3.3 7-7.4"/></svg>active</span></div>
+          <div class="lchip vac"><span class="lname">mechanical_lock</span><span class="lstate"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="5.4" stroke-dasharray="2.2 2.4"/></svg>vacuous</span></div>
+          <div class="lchip vac"><span class="lname">gate_integrity</span><span class="lstate"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="5.4" stroke-dasharray="2.2 2.4"/></svg>vacuous</span></div>
+          <div class="lchip na"><span class="lname">canary</span><span class="lstate"><svg viewBox="0 0 16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8h8"/></svg>n/a</span></div>
+        </div>
+        <div class="mfoot"><i>◌ vacuous</i> — mechanical_lock &amp; gate_integrity passed by absence, not by force. That's the one-key: the brain's review engaged, but the machine's lock is <b style="color:var(--ink-2)">your blessing</b>, not yet turned.</div>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--ink-3)">One key is turned, not two — that's why the strip says “1 one-key”, not
+      a green. <b style="color:var(--ink-2)">The number can be ugly, but it can't lie.</b></p>
+  </div>
+</aside>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+function openDrawer(){$("#drawer").classList.add("on");$("#scrim").classList.add("on");$("#drawer").setAttribute("aria-hidden","false");}
+function closeDrawer(){$("#drawer").classList.remove("on");$("#scrim").classList.remove("on");$("#drawer").setAttribute("aria-hidden","true");}
+document.querySelectorAll("[data-manifest]").forEach(b=>b.onclick=openDrawer);
+$("#dx").onclick=closeDrawer;
+$("#scrim").onclick=closeDrawer;
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDrawer();});
+</script>
+</body>
+</html>

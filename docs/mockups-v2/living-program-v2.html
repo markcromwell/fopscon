@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundation — The Living Program · Kith (v2 exemplar)</title>
+<style>
+/* ============================================================
+   FOPSCON mockups-v2 · LIVING PROGRAM — the exemplar
+   Built strictly from:
+     coev2-working-docs/console-design-language.md   (the skin)
+     coev2-working-docs/console-gui-architecture.md  (the skeleton)
+   Honesty law intact: every green below is computed-from-evidence
+   in the real screen; every unknown renders as an honest “—”.
+   No fabricated uptime trend. Version shown truthfully unavailable.
+   ============================================================ */
+:root{
+  --bg:#0c0c0e;
+  --surface:#16161a;
+  --surface-2:#1b1b20;
+  --surface-3:#212127;
+  --line:rgba(255,255,255,.065);
+  --line-strong:rgba(255,255,255,.13);
+  --ink:#f2f2ee;
+  --ink-2:#c3c2b7;
+  --ink-3:#8b897f;
+  --grid:#232329;
+
+  --good:#0ca30c;      --good-hi:#2ec02e;
+  --warn:#fab219;
+  --serious:#ec835a;
+  --crit:#d03b3b;      --crit-hi:#e25a5a;
+
+  --accent:#3987e5;
+  --aqua:#199e70;
+  --gold:#c98500;
+  --violet:#9085e9;
+
+  --r-lg:16px; --r-md:11px; --r-sm:7px;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scrollbar-color:#33333a var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(57,135,229,.35)}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:3px solid rgba(57,135,229,.4);outline-offset:2px;border-radius:var(--r-sm)}
+
+/* ---------- shell (architecture §2) ---------- */
+.app{display:grid;grid-template-columns:252px 1fr;min-height:100vh}
+.side{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;
+  border-right:1px solid var(--line);background:linear-gradient(180deg,#101014,#0c0c0e 40%);
+  padding:22px 16px 16px;z-index:40}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px 24px}
+.brand .mark{width:30px;height:30px;flex:none}
+.brand b{font-size:15px;letter-spacing:.02em}
+.brand span{display:block;font-size:10.5px;color:var(--ink-3);letter-spacing:.14em;text-transform:uppercase;margin-top:1px}
+.raillabel{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);font-weight:700;padding:0 8px 10px}
+.rail{display:flex;flex-direction:column;position:relative}
+.rail::before{content:"";position:absolute;left:21px;top:18px;bottom:18px;width:1.5px;
+  background:linear-gradient(180deg,rgba(57,135,229,.5),rgba(57,135,229,.14) 55%,rgba(255,255,255,.08))}
+.rstep{display:flex;align-items:center;gap:12px;padding:10px 8px;border-radius:var(--r-sm);
+  color:var(--ink-2);text-align:left;font-weight:500;font-size:13.5px;position:relative;
+  transition:background .15s,color .15s;z-index:1}
+.rstep:hover{background:rgba(255,255,255,.045);color:var(--ink)}
+.rstep.on{background:rgba(57,135,229,.13);color:var(--ink)}
+.rstep .glyph{width:28px;height:28px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+  background:var(--surface-2);border:1.5px solid var(--line-strong);transition:all .18s}
+.rstep .glyph svg{width:14px;height:14px;color:var(--ink-3);transition:color .18s}
+.rstep.on .glyph{border-color:var(--accent);background:rgba(57,135,229,.14);box-shadow:0 0 0 3px rgba(57,135,229,.12)}
+.rstep.on .glyph svg{color:var(--accent)}
+.rstep .lbl small{display:block;font-size:10.5px;color:var(--ink-3);letter-spacing:.04em;font-weight:500}
+.rstep.seat{margin-top:10px}
+.rstep.seat .glyph{border-style:dashed}
+.side .foot{margin-top:auto;padding:14px 8px 0;border-top:1px solid var(--line)}
+.loopline{display:flex;align-items:center;gap:10px;color:var(--ink-2);font-size:12.5px}
+.loopline small{display:block;color:var(--ink-3);font-size:11px}
+.loopring{width:18px;height:18px;flex:none}
+.loopring circle.trk{fill:none;stroke:rgba(255,255,255,.12);stroke-width:2}
+.loopring circle.arc{fill:none;stroke:var(--good-hi);stroke-width:2;stroke-linecap:round;
+  stroke-dasharray:12 32;transform-origin:center;animation:orbit 4s linear infinite}
+@keyframes orbit{to{transform:rotate(360deg)}}
+
+/* ---------- main ---------- */
+.main{min-width:0;padding:26px 32px 70px;position:relative;animation:rise .34s cubic-bezier(.2,.7,.2,1)}
+@keyframes rise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.vhead{display:flex;align-items:flex-end;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+.vhead h1{font-size:22px;font-weight:650;letter-spacing:-.01em}
+.vhead p{color:var(--ink-3);font-size:13px;max-width:640px}
+.live{display:inline-flex;align-items:center;gap:7px;margin-left:auto;
+  border:1px solid var(--line-strong);border-radius:999px;padding:4px 12px 4px 9px;
+  font-size:11px;letter-spacing:.12em;color:var(--ink-2);text-transform:uppercase;font-weight:600;white-space:nowrap}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--good-hi);animation:pulse 2.2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(46,192,46,.5)}55%{box-shadow:0 0 0 6px rgba(46,192,46,0)}}
+.micro{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);font-weight:650}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 8px 28px -18px rgba(0,0,0,.7)}
+.btn{border-radius:8px;padding:8px 16px;font-weight:640;font-size:13px;
+  border:1px solid var(--line-strong);color:var(--ink-2);transition:all .14s;
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;text-decoration:none}
+.btn svg{width:13px;height:13px;flex:none}
+.btn:hover{border-color:rgba(255,255,255,.3);color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:#2f76cd}
+.btn.lg{padding:12px 26px;font-size:14.5px;border-radius:10px}
+.fchip{border:1px solid var(--line-strong);border-radius:999px;padding:5px 13px;font-size:12px;
+  color:var(--ink-2);font-weight:600;transition:all .14s}
+.fchip.on{background:rgba(57,135,229,.16);color:var(--ink);border-color:rgba(57,135,229,.55)}
+.pickrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+
+/* ---------- the primary object: the running app (skin §4 gradient-frame hero) ---------- */
+.livewrap{max-width:1120px}
+.appwin{border-radius:18px;padding:1.5px;position:relative;margin-bottom:16px;
+  background:linear-gradient(150deg,rgba(46,192,46,.4),rgba(57,135,229,.35) 45%,rgba(255,255,255,.08));
+  box-shadow:0 30px 80px -34px rgba(46,192,46,.22),0 24px 70px -30px rgba(57,135,229,.22)}
+.appwin .win{background:#121217;border-radius:17px;overflow:hidden}
+.winbar{display:flex;align-items:center;gap:9px;padding:11px 16px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.02)}
+.winbar .wdot{width:10px;height:10px;border-radius:50%;background:var(--surface-3);border:1px solid var(--line-strong)}
+.winbar .url{margin-left:8px;flex:1;max-width:420px;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:7px;padding:4px 12px;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);
+  display:flex;align-items:center;gap:8px}
+.winbar .url svg{width:11px;height:11px;color:var(--good-hi);flex:none}
+.winbar .runchip{margin-left:auto;display:inline-flex;align-items:center;gap:7px;font-size:10.5px;
+  letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--good-hi)}
+.winbar .runchip i{width:7px;height:7px;border-radius:50%;background:var(--good-hi);animation:pulse 2.2s infinite}
+.winbody{display:grid;grid-template-columns:180px 1fr;min-height:230px}
+.winnav{border-right:1px solid var(--line);padding:16px 14px;display:flex;flex-direction:column;gap:8px}
+.winnav .wn{height:11px;border-radius:5px;background:var(--surface-3)}
+.winnav .wn.hd{width:64%;background:rgba(57,135,229,.4);height:13px;margin-bottom:6px}
+.winnav .wn:nth-child(3){width:82%}.winnav .wn:nth-child(4){width:70%}.winnav .wn:nth-child(5){width:88%}
+.winmain{padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.winmain .wrow{display:flex;gap:12px}
+.winmain .wblock{flex:1;border-radius:9px;background:var(--surface-2);border:1px solid var(--line);position:relative;overflow:hidden}
+.winmain .wblock.tall{height:104px}
+.winmain .wblock.short{height:50px}
+.winmain .wblock .shimmer{position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.045) 50%,transparent 70%);
+  animation:shim 3.6s ease-in-out infinite}
+@keyframes shim{45%,100%{transform:translateX(100%)}}
+.winmain .wline{height:9px;border-radius:4px;background:var(--surface-3)}
+.winmain .wline.w1{width:42%}.winmain .wline.w2{width:64%}
+.winglass{padding:14px 18px;display:flex;align-items:center;gap:16px;border-top:1px solid var(--line);flex-wrap:wrap}
+.winglass .made{font-size:12.5px;color:var(--ink-3)}
+.winglass .made b{color:var(--ink)}
+.winglass .btn.open{margin-left:auto}
+
+/* ---------- vitals band — honest to the last tile ---------- */
+.lvgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.lvtile{padding:15px 17px 13px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.lvtile .val{font-size:25px;font-weight:650;letter-spacing:-.02em;line-height:1.15;margin-top:5px;font-variant-numeric:tabular-nums}
+.lvtile .val.dim{color:var(--ink-3)}
+.lvtile .sub{font-size:11.5px;color:var(--ink-3)}
+.ecg{width:100%;height:44px;margin-top:6px}
+.ecg path{fill:none;stroke:var(--good-hi);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:300 900;animation:ecgrun 3.2s linear infinite}
+@keyframes ecgrun{from{stroke-dashoffset:1200}to{stroke-dashoffset:0}}
+
+/* ---------- secondary grid: constellation ‖ recap ---------- */
+.livegrid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+.featcard,.recap{padding:20px 22px}
+.featcard h4,.recap h4{font-size:13px;font-weight:650;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.featcard h4 svg,.recap h4 svg{width:14px;height:14px}
+.featcard .subt,.recap .subt{font-size:11.5px;color:var(--ink-3);margin-bottom:14px}
+.constellation{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.feat{border:1px solid var(--line);border-radius:8px;background:var(--surface-2);padding:10px 12px;
+  font-size:12px;color:var(--ink-2);display:flex;flex-direction:column;gap:5px;cursor:pointer;
+  transition:border-color .16s,box-shadow .3s;position:relative;text-align:left}
+.feat:hover{border-color:rgba(46,192,46,.45);box-shadow:0 0 18px -6px rgba(46,192,46,.3)}
+.feat .fn{font-weight:600;color:var(--ink);display:flex;align-items:flex-start;gap:7px;line-height:1.4}
+.feat .fn i{width:5px;height:5px;border-radius:50%;background:var(--good-hi);flex:none;margin-top:6px;
+  box-shadow:0 0 6px rgba(46,192,46,.7)}
+.feat .fmeta{display:flex;align-items:center;gap:8px}
+.feat small{font-size:10px;color:var(--ink-3);font-family:var(--mono)}
+.keypill{margin-left:auto;display:inline-flex;align-items:center;gap:5px;font-size:10px;letter-spacing:.07em;
+  text-transform:uppercase;font-weight:700;border:1px solid rgba(46,192,46,.35);color:var(--good-hi);
+  border-radius:4px;padding:1px 7px}
+.keypill i{width:7px;height:7px;border-radius:2px;background:var(--good);flex:none}
+.feat.newest{border-color:rgba(46,192,46,.35)}
+.feat.newest::after{content:"newest";position:absolute;top:-7px;right:8px;font-size:8.5px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:800;color:var(--good-hi);background:var(--surface);padding:0 6px;border-radius:4px}
+.trustlink{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;font-size:12px;color:var(--ink-3)}
+.trustlink button{color:#7db3f0;font-weight:600;font-size:12px;padding:0;text-decoration:underline;text-underline-offset:3px}
+.trustlink button:hover{color:var(--ink)}
+
+/* journey recap — the architectural echo of the rail */
+.recapflow{display:flex;flex-direction:column;position:relative;margin-left:9px}
+.recapflow::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:1px;background:var(--line-strong)}
+.rc{position:relative;padding:0 0 16px 22px}
+.rc:last-child{padding-bottom:0}
+.rc .dot{position:absolute;left:-5.5px;top:4px;width:12px;height:12px;border-radius:50%;
+  border:2px solid var(--surface);background:var(--accent);z-index:1}
+.rc .dot.g{background:var(--good)}
+.rc .dot.mut{background:var(--surface-3);border-color:var(--line-strong)}
+.rc b{font-size:13px;font-weight:640;display:block}
+.rc span{font-size:11.5px;color:var(--ink-3)}
+.rc .q{font-style:italic;color:var(--ink-3);font-size:12px;border-left:2px solid var(--line-strong);
+  padding-left:9px;margin-top:4px;display:block}
+
+/* ---------- the OTHER honest state (review-only band) ---------- */
+.statesplit{display:flex;align-items:center;gap:12px;margin:34px 0 12px}
+.statesplit::before,.statesplit::after{content:"";flex:1;height:1px;background:var(--line)}
+.statesplit span{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);font-weight:700}
+.notlive{padding:26px 22px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center;max-width:720px}
+.notlive .nring{width:34px;height:34px;border-radius:50%;border:1.5px dashed var(--line-strong);
+  display:flex;align-items:center;justify-content:center;margin-bottom:4px}
+.notlive .nring svg{width:15px;height:15px;color:var(--ink-3)}
+.notlive .big{font-size:15.5px;font-weight:650;color:var(--ink-2)}
+.notlive .small{font-size:12.5px;color:var(--ink-3);max-width:520px;line-height:1.55}
+
+/* ---------- trust drawer (operator lens) ---------- */
+.scrim{position:fixed;inset:0;background:rgba(6,6,8,.6);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .25s;z-index:80}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:-480px;width:460px;max-width:94vw;height:100vh;z-index:90;
+  background:var(--surface);border-left:1px solid var(--line-strong);
+  box-shadow:-30px 0 80px -30px rgba(0,0,0,.9);transition:right .3s cubic-bezier(.2,.7,.2,1);
+  display:flex;flex-direction:column}
+.drawer.on{right:0}
+.drawer .dhd{display:flex;align-items:center;gap:10px;padding:18px 20px 14px;border-bottom:1px solid var(--line)}
+.drawer .dhd svg{width:15px;height:15px;flex:none;color:var(--ink-3)}
+.drawer .dhd h3{font-size:14px;font-weight:650}
+.drawer .dhd .x{margin-left:auto;width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:var(--ink-3)}
+.drawer .dhd .x:hover{background:var(--surface-3);color:var(--ink)}
+.drawer .dbd{padding:18px 20px 30px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;font-size:13px;color:var(--ink-2)}
+.drawer .dbd .micro{display:block;margin-bottom:8px}
+.manifest{background:linear-gradient(180deg,var(--surface-2),rgba(27,27,32,.55));
+  border:1px solid var(--line-strong);border-radius:var(--r-md);
+  padding:14px 16px 15px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.manifest .mhead{display:flex;align-items:center;gap:8px}
+.manifest .mhead svg{width:14px;height:14px;color:var(--ink-3)}
+.mflags{margin-left:auto;display:flex;gap:5px}
+.mflag{font-size:10px;letter-spacing:.09em;text-transform:uppercase;font-weight:750;padding:2px 7px;border-radius:4px;border:1px solid}
+.mflag.yes{color:var(--good-hi);border-color:rgba(46,192,46,.4)}
+.effective{display:flex;align-items:center;gap:11px;border-radius:var(--r-sm);padding:10px 13px;border:1px solid;flex-wrap:wrap}
+.effective .big{font-size:15px;font-weight:750;letter-spacing:.015em;white-space:nowrap}
+.effective .via{font-size:11.5px;opacity:.75;font-family:var(--mono)}
+.effective.twokey{background:rgba(12,163,12,.10);border-color:rgba(46,192,46,.42);color:var(--good-hi)}
+.twrow{display:flex;align-items:center;gap:12px}
+.twrow .num{font-size:21px;font-weight:680;letter-spacing:-.01em;min-width:52px;color:var(--good-hi)}
+.twmeter{flex:1;height:8px;border-radius:4px;position:relative}
+.twmeter .trk{position:absolute;inset:0;border-radius:4px;background:var(--good);opacity:.16}
+.twmeter .fill{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--good);width:93%}
+.twmeter .notch{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--line-strong);left:75%}
+.twrow .cap{font-size:10.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase;font-weight:650}
+.layers{display:grid;grid-template-columns:1fr;gap:6px}
+.lchip{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:6px;padding:5px 10px;font-size:11.5px;background:rgba(0,0,0,.14)}
+.lchip .lname{font-family:var(--mono);font-size:10.5px;color:var(--ink-2)}
+.lchip .lstate{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:10px;letter-spacing:.09em;text-transform:uppercase;font-weight:750}
+.lchip svg{width:11px;height:11px;flex:none}
+.lchip.active .lstate{color:var(--good-hi)}
+.lchip.na .lstate{color:var(--ink-3)}
+.mfoot{font-size:11.5px;color:var(--ink-3)}
+.mfoot i{font-style:normal;font-family:var(--mono);font-size:10.5px}
+
+/* ---------- responsive (architecture §2) ---------- */
+@media(max-width:1140px){
+  .livegrid{grid-template-columns:1fr}
+  .lvgrid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:880px){
+  .app{grid-template-columns:1fr}
+  .side{position:sticky;height:auto;flex-direction:row;align-items:center;padding:10px 14px;
+    border-right:none;border-bottom:1px solid var(--line);gap:6px;overflow-x:auto}
+  .brand{padding:0 10px 0 0}.brand span{display:none}
+  .raillabel,.side .foot{display:none}
+  .rail{flex-direction:row;gap:4px}
+  .rail::before{display:none}
+  .rstep{padding:7px 10px;white-space:nowrap}
+  .rstep .lbl small{display:none}
+  .rstep .glyph{width:24px;height:24px}
+  .main{padding:18px 14px 50px}
+  .winbody{grid-template-columns:1fr}.winnav{display:none}
+}
+@media(max-width:560px){.lvgrid{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s !important;transition-duration:.001s !important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= JOURNEY RAIL (skeleton §3) ================= -->
+  <aside class="side">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <circle cx="16" cy="16" r="12.5" stroke="#3987e5" stroke-width="2.4" stroke-dasharray="52 27" stroke-linecap="round" transform="rotate(-58 16 16)"/>
+        <circle cx="16" cy="16" r="4.4" fill="#f2f2ee"/>
+        <circle cx="27.2" cy="9.4" r="2.6" fill="#0ca30c"/>
+      </svg>
+      <div><b>Foundation</b><span>Vision Journey</span></div>
+    </div>
+    <div class="raillabel">Your idea's journey</div>
+    <nav class="rail" aria-label="Journey">
+      <button class="rstep"><span class="glyph"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 1.6v3M8 11.4v3M1.6 8h3M11.4 8h3M3.5 3.5l2.1 2.1M10.4 10.4l2.1 2.1M12.5 3.5l-2.1 2.1M5.6 10.4l-2.1 2.1"/></svg></span>
+        <span class="lbl">Idea → Vision<small>where it begins</small></span></button>
+      <button class="rstep"><span class="glyph"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M13.2 8a5.2 5.2 0 1 1-1.6-3.75"/><path d="M13.4 1.8v2.7h-2.7" stroke-linejoin="round"/></svg></span>
+        <span class="lbl">Vision → Program<small>watch it take shape</small></span></button>
+      <button class="rstep on" aria-current="page"><span class="glyph"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M8 13.6S2 9.9 2 5.9a3.1 3.1 0 0 1 6-1.2A3.1 3.1 0 0 1 14 5.9c0 4-6 7.7-6 7.7z"/></svg></span>
+        <span class="lbl">The Living Program<small>your idea, running</small></span></button>
+      <button class="rstep seat"><span class="glyph"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.6 7.4V3.2a1.1 1.1 0 0 1 2.2 0V7M6.8 6.8V2.2a1.1 1.1 0 0 1 2.2 0v4.6M9 7V3.4a1.1 1.1 0 0 1 2.2 0V8"/><path d="M11.2 8V6.6a1.1 1.1 0 0 1 2.2.4c0 2.4-.4 4.2-1.4 5.4-.9 1.1-2.2 1.6-3.8 1.6-2.6 0-3.7-1.3-5.2-4.2-.5-.9.6-1.9 1.5-1.2l1.1 1"/></svg></span>
+        <span class="lbl">Guide<small>your hand on the wheel</small></span></button>
+      <button class="rstep"><span class="glyph"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 8c-1.4-1.9-2.4-2.9-3.8-2.9a2.9 2.9 0 0 0 0 5.8C5.6 10.9 6.6 9.9 8 8zm0 0c1.4 1.9 2.4 2.9 3.8 2.9a2.9 2.9 0 0 0 0-5.8C10.4 5.1 9.4 6.1 8 8z"/></svg></span>
+        <span class="lbl">Maintain<small>never done, by design</small></span></button>
+    </nav>
+    <div class="foot">
+      <div class="loopline">
+        <svg class="loopring" viewBox="0 0 18 18" aria-hidden="true">
+          <circle class="trk" cx="9" cy="9" r="7"/><circle class="arc" cx="9" cy="9" r="7"/>
+        </svg>
+        <div>Loop alive<small>last increment 12m ago</small></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="main">
+    <div class="vhead">
+      <div><h1>The Living Program</h1>
+        <p>This is the payoff: a sentence you once said out loud, now installed, running, and quietly doing its job.</p></div>
+      <span class="live"><i></i>Loop live</span>
+    </div>
+
+    <div class="pickrow"><button class="fchip on">Kith</button></div>
+
+    <div class="livewrap">
+
+      <!-- PRIMARY OBJECT — Kith, running. Green frame because the health probe says so. -->
+      <div class="appwin"><div class="win">
+        <div class="winbar">
+          <span class="wdot"></span><span class="wdot"></span><span class="wdot"></span>
+          <span class="url"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 8.2h3l1.4-4.4 2.8 8.4 1.6-4h4.2"/></svg>http://kith-uat:8000</span>
+          <span class="runchip"><i></i>Running</span>
+        </div>
+        <div class="winbody">
+          <div class="winnav"><span class="wn hd"></span><span class="wn"></span><span class="wn"></span><span class="wn"></span><span class="wn"></span></div>
+          <div class="winmain">
+            <span class="wline w1"></span>
+            <div class="wrow"><div class="wblock tall"><div class="shimmer"></div></div><div class="wblock tall"><div class="shimmer" style="animation-delay:.9s"></div></div></div>
+            <span class="wline w2"></span>
+            <div class="wrow"><div class="wblock short"></div><div class="wblock short"></div><div class="wblock short"></div></div>
+          </div>
+        </div>
+        <div class="winglass">
+          <span class="made">Born from your sentence: <b>“a local-first CRM that reminds me who I’ve gone quiet on.”</b></span>
+          <a class="btn primary open lg" href="http://kith-uat:8000">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 3.5H3.2A1.2 1.2 0 0 0 2 4.7v8.1A1.2 1.2 0 0 0 3.2 14h8.1a1.2 1.2 0 0 0 1.2-1.2V9.5"/><path d="M9.8 2h4.2v4.2M13.6 2.4L7.6 8.4"/></svg>
+            Open it</a>
+        </div>
+      </div></div>
+
+      <!-- VITALS — every value real, every gap honest. No fabricated trend anywhere. -->
+      <div class="lvgrid">
+        <div class="card lvtile"><span class="micro">Alive &amp; beating</span>
+          <svg class="ecg" viewBox="0 0 220 44" preserveAspectRatio="none" aria-label="Heartbeat — the program is alive">
+            <path d="M0 26 l6 0 l3 -7 l3 14 l4 -22 l4 26 l3 -13 l3 2 l8 0 l6 0 l3 -7 l3 14 l4 -22 l4 26 l3 -13 l3 2 l8 0 l6 0 l3 -7 l3 14 l4 -22 l4 26 l3 -13 l3 2 l8 0 l6 0 l3 -7 l3 14 l4 -22 l4 26 l3 -13 l3 2 l8 0 l6 0 l3 -7 l3 14 l4 -22 l4 26 l3 -13 l3 2 l8 0"/>
+          </svg>
+          <span class="sub">health <b style="color:var(--good-hi)">ok</b> · computed from a real probe, checked just now</span></div>
+        <div class="card lvtile"><span class="micro">Version</span>
+          <span class="val dim">—</span>
+          <span class="sub">unavailable · the program doesn’t report one yet — an honest gap, not a guess</span></div>
+        <div class="card lvtile"><span class="micro">Uptime trend</span>
+          <span class="val dim">—</span>
+          <span class="sub">point-in-time only · no history store yet — nothing here is invented</span></div>
+        <div class="card lvtile"><span class="micro">Still growing</span>
+          <span class="val">4</span>
+          <span class="sub">features alive · newest from increment S4 · all two-key</span></div>
+      </div>
+
+      <!-- SECONDARY: constellation ‖ journey recap -->
+      <div class="livegrid">
+        <div class="card featcard">
+          <h4><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M8 13.6S2 9.9 2 5.9a3.1 3.1 0 0 1 6-1.2A3.1 3.1 0 0 1 14 5.9c0 4-6 7.7-6 7.7z"/></svg> What your idea can do now</h4>
+          <div class="subt">4 living features — each one began as a sentence in your Vision, and each earned its green with two keys</div>
+          <div class="constellation">
+            <button class="feat" data-inc="S1">
+              <span class="fn"><i></i>Add a contact with a cadence</span>
+              <span class="fmeta"><small>born S1 · the walking skeleton</small><span class="keypill"><i></i>two-key</span></span></button>
+            <button class="feat" data-inc="S2">
+              <span class="fn"><i></i>Import contacts from CSV</span>
+              <span class="fmeta"><small>born S2</small><span class="keypill"><i></i>two-key</span></span></button>
+            <button class="feat" data-inc="S3">
+              <span class="fn"><i></i>See who’s overdue, ranked by days quiet</span>
+              <span class="fmeta"><small>born S3</small><span class="keypill"><i></i>two-key</span></span></button>
+            <button class="feat newest" data-inc="S4">
+              <span class="fn"><i></i>Mark “reached out” — logs it, resets the clock</span>
+              <span class="fmeta"><small>born S4</small><span class="keypill"><i></i>two-key</span></span></button>
+          </div>
+          <div class="trustlink">Every light in this constellation earned its green — two keys turned on all four.
+            <button id="whytrust">See the honest paperwork</button></div>
+        </div>
+
+        <div class="card recap">
+          <h4><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 8h11M9.5 4l4 4-4 4"/></svg> From a sentence to this</h4>
+          <div class="subt">the whole journey, in one glance</div>
+          <div class="recapflow">
+            <div class="rc"><span class="dot mut"></span><b>You said it out loud</b><span>Jul 1 · one sentence</span>
+              <span class="q">“a local-first CRM that reminds me who I’ve gone quiet on.”</span></div>
+            <div class="rc"><span class="dot"></span><b>The loop shaped it into a Vision</b><span>Jul 1 · graded 0.71 — cleared the gate honestly, with you steering</span></div>
+            <div class="rc"><span class="dot"></span><b>4 increments, each two-key green</b><span>Jul 1–4 · S1–S4 · forge → UAT → your blessing</span></div>
+            <div class="rc"><span class="dot g"></span><b>Alive since Jul 4</b><span>running at kith-uat:8000 · watched, still becoming more itself</span></div>
+          </div>
+          <div class="trustlink">It will never be “done” — that’s the design, not a delay.</div>
+        </div>
+      </div>
+
+      <!-- THE OTHER STATE this screen renders (shown here for review; live screen shows one at a time) -->
+      <div class="statesplit"><span>state · not deployed — rendered honestly, never faked</span></div>
+      <div class="card notlive">
+        <span class="nring"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M8 13.6S2 9.9 2 5.9a3.1 3.1 0 0 1 6-1.2A3.1 3.1 0 0 1 14 5.9c0 4-6 7.7-6 7.7z"/></svg></span>
+        <div class="big">Not live yet</div>
+        <div class="small">This program has been shaped and is building, but nothing has deployed to a running
+          environment. When it ships, its address and heartbeat appear here — until then, there’s nothing to fake:
+          no URL, no health, no green.</div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ================= OPERATOR LENS: the trust drawer ================= -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="dhd">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 1.6l5.6 2.1v4.1c0 3.4-2.4 5.7-5.6 6.8-3.2-1.1-5.6-3.4-5.6-6.8V3.7z"/><path d="M5.4 8l1.8 1.9 3.4-3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h3 id="dtitle">The honest paperwork</h3>
+    <button class="x" id="dx" aria-label="Close">✕</button>
+  </div>
+  <div class="dbd">
+    <p style="font-size:12.5px;color:var(--ink-3)">Behind every living feature is an assurance manifest — a plain
+      statement of which safeguards were truly <b style="color:var(--ink-2)">active</b> when it shipped. The warm
+      screen folds this away; it never hides it.</p>
+    <div><span class="micro" id="dinc">Increment S4 · two-key green</span>
+      <div class="manifest">
+        <div class="mhead">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 1.6l5.6 2.1v4.1c0 3.4-2.4 5.7-5.6 6.8-3.2-1.1-5.6-3.4-5.6-6.8V3.7z"/></svg>
+          <span class="micro">Assurance manifest</span>
+          <div class="mflags"><span class="mflag yes">honest</span><span class="mflag yes">sound</span></div>
+        </div>
+        <div class="effective twokey"><span class="big">TWO-KEY</span><span class="via">mechanical_lock + graded_review</span></div>
+        <div class="twrow"><span class="num">0.93</span>
+          <div class="twmeter"><span class="trk"></span><span class="notch"></span><span class="fill"></span></div>
+          <span class="cap">trust weight</span></div>
+        <div class="layers">
+          <div class="lchip active"><span class="lname">mechanical_lock</span><span class="lstate"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 8.6l3.3 3.3 7-7.4"/></svg>active</span></div>
+          <div class="lchip active"><span class="lname">graded_review</span><span class="lstate"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 8.6l3.3 3.3 7-7.4"/></svg>active</span></div>
+          <div class="lchip active"><span class="lname">gate_integrity</span><span class="lstate"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 8.6l3.3 3.3 7-7.4"/></svg>active</span></div>
+          <div class="lchip active"><span class="lname">required_tests</span><span class="lstate"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.8 8.6l3.3 3.3 7-7.4"/></svg>active</span></div>
+          <div class="lchip na"><span class="lname">canary</span><span class="lstate"><svg viewBox="0 0 16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8h8"/></svg>n/a</span></div>
+        </div>
+        <div class="mfoot"><i>— n/a</i> — canary (policy: not applicable on a UAT-only deploy — said plainly, not hidden)</div>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--ink-3)">Two keys turned — the machine’s lock and the brain’s graded review
+      both engaged, and your blessing closed each increment. The rule is unchanged:
+      <b style="color:var(--ink-2)">the number can be ugly, but it can’t lie.</b></p>
+  </div>
+</aside>
+
+<script>
+"use strict";
+/* Minimal wiring only — this is a mockup; all data above is the seed truth.
+   In the real screen every value binds to computed evidence (architecture §6). */
+const $=s=>document.querySelector(s);
+function openDrawer(inc){
+  $("#dinc").textContent="Increment "+inc+" · two-key green";
+  $("#drawer").classList.add("on");$("#scrim").classList.add("on");
+  $("#drawer").setAttribute("aria-hidden","false");
+}
+function closeDrawer(){
+  $("#drawer").classList.remove("on");$("#scrim").classList.remove("on");
+  $("#drawer").setAttribute("aria-hidden","true");
+}
+$("#whytrust").onclick=()=>openDrawer("S4");
+document.querySelectorAll(".feat").forEach(f=>f.onclick=()=>openDrawer(f.dataset.inc));
+$("#dx").onclick=closeDrawer;
+$("#scrim").onclick=closeDrawer;
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDrawer()});
+</script>
+</body>
+</html>
